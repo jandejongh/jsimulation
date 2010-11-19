@@ -43,7 +43,7 @@ public abstract class NonPreemptiveQueue
 
   protected double lastEventTime = Double.NEGATIVE_INFINITY;
 
-  protected List<SimEventAction> departureActions
+  protected final List<SimEventAction> departureActions
     = new Vector<SimEventAction> ();
 
   @Override
@@ -66,6 +66,28 @@ public abstract class NonPreemptiveQueue
     this.departureActions.remove (action);
   }
 
+  protected final List<SimEventAction> arrivalActions
+    = new Vector<SimEventAction> ();
+
+  @Override
+  public void addArrivalAction (final SimEventAction action)
+  {
+    if (action == null)
+    {
+      return;
+    }
+    if (this.arrivalActions.contains (action))
+    {
+      return;
+    }
+    this.arrivalActions.add (action);
+  }
+
+  @Override
+  public void removeArrivalAction (final SimEventAction action)
+  {
+    this.arrivalActions.remove (action);
+  }
 
   protected abstract void rescheduleAfterDeparture
     (SimJob departedJob, double time);
@@ -161,6 +183,10 @@ public abstract class NonPreemptiveQueue
       {
         aAction.action (new SimEvent (time, job, aAction));
       }
+      for (SimEventAction<SimJob> action: this.arrivalActions)
+      {
+        action.action (new SimEvent (time, job, action));
+      }
     }
 
     @Override
@@ -226,6 +252,10 @@ public abstract class NonPreemptiveQueue
       if (aAction != null)
       {
         aAction.action (new SimEvent (time, job, aAction));
+      }
+      for (SimEventAction<SimJob> action: this.arrivalActions)
+      {
+        action.action (new SimEvent (time, job, action));
       }
       if (this.jobQueue.size () == 1)
       {
@@ -370,6 +400,10 @@ public abstract class NonPreemptiveQueue
       if (aAction != null)
       {
         aAction.action (new SimEvent (time, job, aAction));
+      }
+      for (SimEventAction<SimJob> action: this.arrivalActions)
+      {
+        action.action (new SimEvent (time, job, action));
       }
       final SimEventAction<SimJob> sAction = job.getQueueStartAction ();
       if (sAction != null)

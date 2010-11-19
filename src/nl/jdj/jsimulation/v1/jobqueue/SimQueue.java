@@ -13,6 +13,10 @@ public interface SimQueue
 
   public boolean revoke (SimJob job, double time, boolean interruptService);
 
+  public void addArrivalAction (SimEventAction action);
+
+  public void removeArrivalAction (SimEventAction action);
+
   public void addDepartureAction (SimEventAction action);
 
   public void removeDepartureAction (SimEventAction action);
