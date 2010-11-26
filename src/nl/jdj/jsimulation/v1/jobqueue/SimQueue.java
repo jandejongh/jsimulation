@@ -15,8 +15,9 @@ import nl.jdj.jsimulation.v1.SimEventAction;
  * must be provided by each job through {@link SimJob#getServiceTime}.
  *
  * <p>
- * Note that a {@link SimJob} cannot visit multiple {@link SimQueue}s
- * simultaneously. The {@link SimQueue} currently being visited by
+ * Note that a {@link SimJob} <i>cannot</i> visit multiple {@link SimQueue}s
+ * simultaneously.
+ * The {@link SimQueue} currently being visited by
  * a {@link SimJob} can be obtained from {@link SimJob#getQueue};
  * this must be maintained by {@link SimQueue} implementations of
  * {@link #arrive}.
@@ -24,10 +25,9 @@ import nl.jdj.jsimulation.v1.SimEventAction;
  * <p>
  * A {@link SimQueue} supports registration and deregistration of
  * queue-specific {@link SimAction}s to be invoked for specific events,
- * like job arrivals ({@link #addArrivalAction}
- * and {@link #removeArrivalAction}
- * and job departures ({@link #addDepartureAction}
- * and {@link #removeDepartureAction}.
+ * in particular job arrivals ({@link #addArrivalAction} and {@link #removeArrivalAction}),
+ * job service start events ({@link #addStartAction} and {@link #removeStartAction}),
+ * and job departures ({@link #addDepartureAction} and {@link #removeDepartureAction}).
  *
  * <p>
  * A {@link SimQueue} respects the various per job actions to be performed by
@@ -36,6 +36,22 @@ import nl.jdj.jsimulation.v1.SimEventAction;
  * {@link SimJob#getQueueStartAction},
  * {@link SimJob#getQueueRevokeAction}, and
  * {@link SimJob#getQueueDepartAction}.
+ *
+ * <p>
+ * All {@link SimAction}s described above are called only <i>after</i> the
+ * {@link SimQueue} has updated all relevant fields in the
+ * {@link SimQueue} and {@link SimJob} objects,
+ * i.e., <i>after</i> both objects truely reflect the new state of the queue
+ * and the job, respectively.
+ * As a general rule, queue-registered (global) actions take precedence
+ * over job-specific actions, in the sense that the former are called
+ * before the latter.
+ * However, we think it is bad practice to depend upon this behavior.
+ *
+ * <p>
+ * If a job is succesfully revoked, none of the departure actions are
+ * called. Also, be aware that there is no guarantee that a start-service
+ * or a departure event is ever called for a {@link SimJob} at all.
  *
  * <p>
  * A basic implementation of the most important non-preemptive
@@ -88,6 +104,24 @@ public interface SimQueue
    *
    */
   public void removeArrivalAction (SimEventAction action);
+
+  /** Add an action to be invoked upon (re)starting servicing a job.
+   *
+   * This method silently ignores actions that have already been registered.
+   *
+   * @param action The action to add.
+   *
+   */
+  public void addStartAction (SimEventAction action);
+
+  /** Remove an action to be invoked upon (re)starting servicing a job.
+   *
+   * This method silently ignores actions that have not been registered.
+   *
+   * @param action The action to remove.
+   *
+   */
+  public void removeStartAction (SimEventAction action);
 
   /** Add an action to be invoked upon job departures.
    *
