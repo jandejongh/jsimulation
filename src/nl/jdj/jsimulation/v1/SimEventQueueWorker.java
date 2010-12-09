@@ -29,6 +29,7 @@ public class SimEventQueueWorker
       final SimEventAction eventAction = event.getEventAction ();
       if (eventAction != null)
       {
+        setWorkDone (event.getTime ());
         eventAction.action (event);
       }
     }
@@ -38,6 +39,7 @@ public class SimEventQueueWorker
   public SimEventQueueWorker (final SimEventQueue i, final SimEventQueue o)
   {
     super (i, o);
+    setWorkDone (0);
   }
 
 }
