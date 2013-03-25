@@ -30,6 +30,7 @@ public class SimEventQueueWorker
       if (eventAction != null)
       {
         setWorkDone (event.getTime ());
+        output.checkUpdate (event);
         eventAction.action (event);
       }
     }
