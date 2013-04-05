@@ -15,6 +15,11 @@ public class SimEventQueue
   double lastUpdateTime = 0.0;
   boolean firstUpdate = true;
   
+  public final double getTime ()
+  {
+    return this.lastUpdateTime;
+  }
+  
   private final Set<SimEventAction> updateListeners = new HashSet<SimEventAction> ();
   
   public final void addUpdateSimEventAction (SimEventAction a)
