@@ -2,11 +2,16 @@ package nl.jdj.jsimulation.r2;
 
 import java.util.Comparator;
 
-public class DefaultSimEventComparator implements Comparator<SimEvent>
+/** A default {@link Comparator} on {SimEvent}s.
+ * 
+ * @param <E> The type of {@link SimEvent}s supported.
+ * 
+ */
+public class DefaultSimEventComparator<E extends SimEvent> implements Comparator<E>
 {
 
   @Override
-  public int compare (SimEvent e1, SimEvent e2)
+  public int compare (E e1, E e2)
   {
     int c = Double.compare (e1.getTime (), e2.getTime ());
     if (c == 0)

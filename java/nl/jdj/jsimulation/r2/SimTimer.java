@@ -3,11 +3,11 @@ package nl.jdj.jsimulation.r2;
 /** A general-purpose timer.
  * 
  * This abstract timer class hides the details of scheduling a {@link SimEvent} with
- * an appropriate {@link SimAction} on a {@link SimEventQueue} and
+ * an appropriate {@link SimAction} on a {@link SimEventList} and
  * instead uses a callback method {@link #expireAction} to
  * notify concrete subclasses of timer expiration.
  * Concrete subclasses only have to override {@link #expireAction}.
- * The timer is scheduled on a {@link SimEventQueue} through
+ * The timer is scheduled on a {@link SimEventList} through
  * {@link #schedule}, passing the (positive or zero) delay.
  * Upon scheduling, the override-able {@link scheduleAction} is invoked
  * (the default implementation does nothing).
@@ -15,9 +15,9 @@ package nl.jdj.jsimulation.r2;
  * Canceling a timer that is not currently scheduled has no effect.
  * Upon cancellation, the override-able {@link #cancelAction} is invoked
  * (the default implementation does nothing).
- * A timer can only be scheduled on a single {@link SimEventQueue} at a time,
+ * A timer can only be scheduled on a single {@link SimEventList} at a time,
  * but once expired or canceled, the timer can be rescheduled, even on a different
- * {@link SimEventQueue}.
+ * {@link SimEventList}.
  * An attempt to schedule an already scheduled timer will result in a {@link RuntimeException}.
  * 
  */
@@ -31,7 +31,7 @@ public abstract class SimTimer
     this.NAME = (name == null) ? "" : name;
   }
   
-  private SimEventQueue queue = null;
+  private SimEventList eventList = null;
   
   private final SimEvent EXPIRE_EVENT
     = new SimEvent (this.NAME + "_expire", 0.0, null, this.EXPIRE_EVENT_ACTION);
@@ -42,7 +42,7 @@ public abstract class SimTimer
     @Override
     public void action (SimEvent event)
     {
-      SimTimer.this.queue = null;
+      SimTimer.this.eventList = null;
       SimTimer.this.expireAction (event.getTime ());
     }
 
@@ -70,7 +70,7 @@ public abstract class SimTimer
    * 
    * The default implementation does nothing.
    * Note that this method is only invoked if the timer was actually
-   * scheduled on a {@link SimEventQueue>} when {@link #cancel} was invoked.
+   * scheduled on a {@link SimEventList} when {@link #cancel} was invoked.
    * 
    * @param time The current time when canceling.
    * 
@@ -79,24 +79,24 @@ public abstract class SimTimer
   {
   }
   
-  /** Schedule this timer on an event queue.
+  /** Schedule this timer on an event list.
    * 
-   * Invokes {@link scheduleAction} once the appropriate event is scheduled on the event queue.
+   * Invokes {@link scheduleAction} once the appropriate event is scheduled on the event lList.
    * 
    * @param delay The delay until expiration.
-   * @param queue The event queue.\
+   * @param eventList The event list.
    * 
-   * @throws IllegalArgumentException If delay is negative or queue is null.
+   * @throws IllegalArgumentException If delay is negative or eventList is null.
    * @throws RuntimeException If the timer is already scheduled.
    */
-  public void schedule (double delay, SimEventQueue queue)
+  public void schedule (double delay, SimEventList eventList)
   {
-    if (delay < 0.0 || queue == null) throw new IllegalArgumentException ();
-    if (this.queue != null) throw new RuntimeException ("Timer already scheduled!");
-    this.queue = queue;
-    this.EXPIRE_EVENT.setTime (this.queue.getTime () + delay);
-    this.queue.add (this.EXPIRE_EVENT);
-    scheduleAction (this.queue.getTime ());
+    if (delay < 0.0 || eventList == null) throw new IllegalArgumentException ();
+    if (this.eventList != null) throw new RuntimeException ("Timer already scheduled!");
+    this.eventList = eventList;
+    this.EXPIRE_EVENT.setTime (this.eventList.getTime () + delay);
+    this.eventList.add (this.EXPIRE_EVENT);
+    scheduleAction (this.eventList.getTime ());
   }
   
   /** Cancel a pending timer.
@@ -108,11 +108,11 @@ public abstract class SimTimer
    */
   public void cancel ()
   {
-    if (this.queue != null)
+    if (this.eventList != null)
     {
-      final double time = this.queue.getTime ();
-      this.queue.remove (this.EXPIRE_EVENT);
-      this.queue = null;
+      final double time = this.eventList.getTime ();
+      this.eventList.remove (this.EXPIRE_EVENT);
+      this.eventList = null;
       cancelAction (time);
     }
   }
