@@ -85,9 +85,9 @@ public class SimEventList<E extends SimEvent>
   {
     synchronized (this)
     {
-      if (running)
+      if (this.running)
         throw new IllegalStateException ();
-      running = true;
+      this.running = true;
     }
     while (! isEmpty ())
     {
