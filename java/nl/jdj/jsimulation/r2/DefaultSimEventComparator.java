@@ -23,7 +23,7 @@ public class DefaultSimEventComparator<E extends SimEvent> implements Comparator
     {
       c = e1.deconflict.compareTo (e2.deconflict);
     }
-    assert c != 0;
+    assert (e1 == e2 && c == 0) || c != 0;
     return c;
   }
 
