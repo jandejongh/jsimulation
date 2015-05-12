@@ -15,6 +15,7 @@ import java.util.TreeSet;
  * @param <E> The type of {@link SimEvent}s supported.
  * 
  * @see DefaultSimEventComparator
+ * @see SimEvent
  * 
  */
 public class SimEventList<E extends SimEvent>
@@ -35,6 +36,26 @@ public class SimEventList<E extends SimEvent>
     return this.lastUpdateTime;
   }
 
+  /** Resets the event list.
+   * 
+   * An exception is thrown if the event list is currently running.
+   * 
+   * @throws IllegalStateException If the event list is currently running.
+   * 
+   * @see #run
+   * 
+   */
+  public void reset ()
+  {
+    synchronized (this)
+    {
+      if (this.running)
+        throw new IllegalStateException ();
+      this.lastUpdateTime = 0.0;
+      this.firstUpdate = true;
+    }
+  }
+  
   /** The listeners to update to the current time in this event list.
    * 
    * Beware that listeners are only invoked upon changes in the time; which may the result of
@@ -109,7 +130,7 @@ public class SimEventList<E extends SimEvent>
    * @see SimEventAction
    * 
    */ 
-  public void checkUpdate (E e)
+  protected void checkUpdate (E e)
   {
     if (this.firstUpdate || e.getTime () > this.lastUpdateTime)
     {
@@ -123,7 +144,7 @@ public class SimEventList<E extends SimEvent>
     
   /** Run the event list until it is empty (or until interrupted).
    * 
-   * @throws IllegalStateException If the method is invoked more than once.
+   * @throws IllegalStateException If the method is invoked recursively (or from another thread before finishing).
    */
   @Override
   public void run ()
@@ -134,7 +155,7 @@ public class SimEventList<E extends SimEvent>
         throw new IllegalStateException ();
       this.running = true;
     }
-    while (! isEmpty ())
+    while ((! isEmpty ()) && ! Thread.interrupted ())
     {
       final E e = pollFirst ();
       checkUpdate (e);
@@ -142,6 +163,7 @@ public class SimEventList<E extends SimEvent>
       if (a != null)
         a.action (e);
     }
+    this.running = false;
   }
   
 }
