@@ -1,7 +1,5 @@
-package jdj.jsimulation.r2.example;
+package nl.jdj.jsimulation.r2.example;
 
-import java.util.ArrayList;
-import java.util.List;
 import nl.jdj.jsimulation.r2.SimEvent;
 import nl.jdj.jsimulation.r2.SimEventAction;
 import nl.jdj.jsimulation.r2.SimEventList;
