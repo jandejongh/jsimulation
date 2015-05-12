@@ -5,7 +5,7 @@ import nl.jdj.jsimulation.r2.SimEventAction;
 import nl.jdj.jsimulation.r2.SimEventList;
 import nl.jdj.jsimulation.r2.SimTimer;
 
-/** Example code for {@link jdj.jsimulation.r2}.
+/** Example code for {@link nl.jdj.jsimulation.r2}.
  * 
  */
 public final class Main
@@ -20,7 +20,10 @@ public final class Main
   
   /** Main method.
    * 
-   * @param args The command-line arguments.
+   * Creates a (reusable) event list, some events and actions and shows the main feature of the package.
+   * Results are sent to {@link System.out}.
+   * 
+   * @param args The command-line arguments (ignored).
    * 
    */
   public static void main (String[] args)
