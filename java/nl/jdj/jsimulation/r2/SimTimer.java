@@ -33,9 +33,6 @@ public abstract class SimTimer
   
   private SimEventList eventList = null;
   
-  private final SimEvent EXPIRE_EVENT
-    = new SimEvent (this.NAME + "_expire", 0.0, null, this.EXPIRE_EVENT_ACTION);
-  
   private final SimEventAction EXPIRE_EVENT_ACTION = new SimEventAction ()
   {
 
@@ -47,6 +44,9 @@ public abstract class SimTimer
     }
 
   };
+  
+  private final SimEvent EXPIRE_EVENT
+    = new SimEvent (this.NAME + "_expire", 0.0, null, this.EXPIRE_EVENT_ACTION);
   
   /** Abstract method that is invoked upon expiration of the timer.
    * 
