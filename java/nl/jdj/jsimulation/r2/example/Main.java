@@ -11,7 +11,7 @@ import nl.jdj.jsimulation.r2.SimTimer;
 public final class Main
 {
   
-  /** Prevent instantiation.
+  /** Prevents instantiation.
    * 
    */
   private Main ()
@@ -21,7 +21,7 @@ public final class Main
   /** Main method.
    * 
    * Creates a (reusable) event list, some events and actions and shows the main feature of the package.
-   * Results are sent to {@link System.out}.
+   * Results are sent to {@link System#out}.
    * 
    * @param args The command-line arguments (ignored).
    * 
