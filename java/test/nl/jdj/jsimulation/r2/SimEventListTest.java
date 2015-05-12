@@ -80,14 +80,14 @@ public class SimEventListTest
     instance.run ();
     double expResult = 15.8;
     double result = instance.getTime ();
-    assertEquals (expResult, result, 15.8);
+    assertEquals (expResult, result, 0.0);
     assert instance.isEmpty ();
     instance.reset ();
     instance.add (e2);
     instance.run ();
     expResult = 10.0;
     result = instance.getTime ();
-    assertEquals (expResult, result, 15.8);
+    assertEquals (expResult, result, 0.0);
     assert instance.isEmpty ();
   }
 
