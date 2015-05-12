@@ -12,11 +12,15 @@
       <p>
         It uses three important concepts:
       <ul>
-        <li>Events (<code>interface SimEvent</code>): an event represents a tuple of a time value and a corresponding action to be
-          taken at that time
-        <li>Actions (<code>interface SimEventAction</code>): an action to be taken when an event is executed
-        <li>Event Lists (<code>interface SimEventList</code>): a list of events ordered increasing in time
+        <li>Events (<code>class SimEvent</code>): an event represents a tuple of a time value and a corresponding action to be
+          taken at that time;
+        <li>Actions (<code>interface SimEventAction</code>): an action to be taken when an event is executed;
+        <li>Event Lists (<code>class SimEventList</code>): a list of events ordered increasing in time.
       </ul>
+      <p>
+        The <code>SimTimer</code> class allows convenient scheduling of timer events on an event list.
+      <p>
+        Example code is available in the <code>nl.jdj.jsimulation.r2.example</code> package.
     </div>
   </body>
 </html>
