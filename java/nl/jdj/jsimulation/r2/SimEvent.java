@@ -136,7 +136,7 @@ public class SimEvent<T>
 
   /** Returns the {@link SimEventAction} associated with this event.
    * 
-   * The action is invoked when the event is executed on the {@link EventList}.
+   * The action is invoked when the event is executed on the {@link SimEventList}.
    * The event action (property) should not be changed when the {@link SimEvent} is scheduled on
    * a {@link SimEventList}.
    * 
@@ -150,7 +150,7 @@ public class SimEvent<T>
 
   /** Sets the {@link SimEventAction} associated with this event.
    * 
-   * The action is invoked when the event is executed on the {@link EventList}.
+   * The action is invoked when the event is executed on the {@link SimEventList}.
    * The event action (property) should not be changed when the {@link SimEvent} is scheduled on
    * a {@link SimEventList}.
    * 

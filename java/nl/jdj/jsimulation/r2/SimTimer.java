@@ -3,13 +3,13 @@ package nl.jdj.jsimulation.r2;
 /** A general-purpose timer.
  * 
  * This abstract timer class hides the details of scheduling a {@link SimEvent} with
- * an appropriate {@link SimAction} on a {@link SimEventList} and
+ * an appropriate {@link SimEventAction} on a {@link SimEventList} and
  * instead uses a callback method {@link #expireAction} to
  * notify concrete subclasses of timer expiration.
  * Concrete subclasses only have to override {@link #expireAction}.
  * The timer is scheduled on a {@link SimEventList} through
  * {@link #schedule}, passing the (positive or zero) delay.
- * Upon scheduling, the override-able {@link scheduleAction} is invoked
+ * Upon scheduling, the override-able {@link #scheduleAction} is invoked
  * (the default implementation does nothing).
  * Canceling a pending timer event is supported through {@link #cancel}.
  * Canceling a timer that is not currently scheduled has no effect.
@@ -81,7 +81,7 @@ public abstract class SimTimer
   
   /** Schedule this timer on an event list.
    * 
-   * Invokes {@link scheduleAction} once the appropriate event is scheduled on the event lList.
+   * Invokes {@link #scheduleAction} once the appropriate event is scheduled on the event lList.
    * 
    * @param delay The delay until expiration.
    * @param eventList The event list.
