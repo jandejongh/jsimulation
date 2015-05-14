@@ -54,6 +54,7 @@ public class SimEventList<E extends SimEvent>
       this.lastUpdateTime = 0.0;
       this.firstUpdate = true;
     }
+    for (SimEventListListener l : this.listeners) l.notifyEventListReset (this);
   }
   
   /** The listeners to update to the current time in this event list.
@@ -97,6 +98,32 @@ public class SimEventList<E extends SimEvent>
     this.updateListeners.remove (a);
   }
   
+  /** The listeners to this event list.
+   * 
+   */
+  private final Set<SimEventListListener> listeners = new HashSet<> ();
+  
+  /** Adds a listener to this event list.
+   * 
+   * @param l The listener to be added, ignored if <code>null</code>.
+   * 
+   */
+  public final void addListener (SimEventListListener l)
+  {
+    if (l != null)
+      this.listeners.add (l);
+  }
+  
+  /** Removes a listener to this event list.
+   * 
+   * @param l The listener to be removed, ignored if <code>null</code> or not present.
+   * 
+   */
+  public final void removeListener (SimEventListListener l)
+  {
+    this.listeners.remove (l);
+  }
+  
   /** Creates a new {@link SimEventList} with default {@link Comparator}.
    * 
    * @see DefaultSimEventComparator
@@ -136,6 +163,7 @@ public class SimEventList<E extends SimEvent>
     {
       this.lastUpdateTime = e.getTime ();
       this.firstUpdate = false;
+      for (SimEventListListener l : this.listeners) l.notifyEventListUpdate (this, this.lastUpdateTime);
       for (SimEventAction a : this.updateListeners) a.action (e);
     }
   }
@@ -163,6 +191,8 @@ public class SimEventList<E extends SimEvent>
       if (a != null)
         a.action (e);
     }
+    if (isEmpty ())
+      for (SimEventListListener l : this.listeners) l.notifyEventListEmpty (this, this.lastUpdateTime);
     this.running = false;
   }
   
