@@ -52,7 +52,7 @@ public class SimEventListTest
   {
     System.out.println ("getTime");
     SimEventList instance = new SimEventList ();
-    double expResult = 0.0;
+    double expResult = Double.NEGATIVE_INFINITY;
     double result = instance.getTime ();
     assertEquals (expResult, result, 0.0);
     SimEvent e1 = new SimEvent (15.8, null, null);
