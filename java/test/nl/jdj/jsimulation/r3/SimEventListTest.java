@@ -4,11 +4,8 @@
  * and open the template in the editor.
  */
 
-package test.nl.jdj.jsimulation.r3;
+package nl.jdj.jsimulation.r3;
 
-import nl.jdj.jsimulation.r3.SimEvent;
-import nl.jdj.jsimulation.r3.SimEventAction;
-import nl.jdj.jsimulation.r3.SimEventList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
