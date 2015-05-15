@@ -78,8 +78,8 @@ public final class Main
     el.add (new SimEvent<> (1.0, null, a3));
     System.out.println ("-> Executing event list...");
     el.run ();
-    System.out.println ("-> Resetting event list...");
-    el.reset ();
+    System.out.println ("-> Resetting event list to zero time...");
+    el.reset (0.0);
     System.out.println ("-> Populating event list with 16-seconds timer...");
     new SimTimer ("Timer")
     {

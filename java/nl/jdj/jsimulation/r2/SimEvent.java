@@ -9,7 +9,7 @@ import java.util.Random;
  * The name and the user object are not changed by the {@link nl.jdj.jsimulation} packages, and may be <code>null</code>.
  * If two {@link SimEvent}s are scheduled on a {@link SimEventList} with identical times, their order of execution is undetermined
  * (in this implementation, their order of execution is random with equal probabilities).
- * In particular, implementation should not assume insertion order of execution for events with identical times.
+ * In particular, implementations should not assume insertion order of execution for events with identical times.
  * 
  * <p> A {@link SimEvent} is not thread-safe.
  * 

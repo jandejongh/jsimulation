@@ -37,4 +37,25 @@ public interface SimEventListListener
    */
   public void notifyEventListEmpty (SimEventList eventList, double time);
   
+  /** A listener that also wants to be notified of individual events processing by the event list.
+   * 
+   * This is mostly useful for debugging.
+   * 
+   */
+  public interface Fine extends SimEventListListener
+  {
+
+    /** Notification that the event list's {@link SimEventList#run} method (or another processor) is about to remove the next
+     * event from the list.
+     * 
+     * @param eventList The event list.
+     * @param time The time of the previous event (i.e., the event just processed).
+     * 
+     * @see SimEventList#addListener
+     * 
+     */
+    public void notifyNextEvent (SimEventList eventList, double time);
+
+  }
+  
 }

@@ -83,16 +83,26 @@ public abstract class SimTimer
    * 
    * Invokes {@link #scheduleAction} once the appropriate event is scheduled on the event lList.
    * 
+   * <p>Note that this method take the current time from the event list to which it adds a delay
+   * in order to schedule the expiration event.
+   * Especially in between event-list runs, the current time may be {@link Double#NEGATIVE_INFINITY},
+   * leading to indefinite rescheduling of the times at negative infinite.
+   * 
    * @param delay The delay until expiration.
    * @param eventList The event list.
    * 
-   * @throws IllegalArgumentException If delay is negative or eventList is null.
+   * @throws IllegalArgumentException If delay is negative or infinite (positive or negative),
+   *                                    the eventList is null,
+   *                                    or the current time on the event list is negative or positive infinity.
    * @throws RuntimeException If the timer is already scheduled.
    */
   public void schedule (double delay, SimEventList eventList)
   {
-    if (delay < 0.0 || eventList == null) throw new IllegalArgumentException ();
-    if (this.eventList != null) throw new RuntimeException ("Timer already scheduled!");
+    if (delay < 0.0 || Double.isInfinite (delay)
+      || eventList == null || Double.isInfinite (eventList.getTime ()))
+      throw new IllegalArgumentException ();
+    if (this.eventList != null)
+      throw new RuntimeException ("Timer already scheduled!");
     this.eventList = eventList;
     this.EXPIRE_EVENT.setTime (this.eventList.getTime () + delay);
     this.eventList.add (this.EXPIRE_EVENT);
