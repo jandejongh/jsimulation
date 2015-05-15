@@ -5,7 +5,7 @@ import nl.jdj.jsimulation.r3.SimEventAction;
 import nl.jdj.jsimulation.r3.SimEventList;
 import nl.jdj.jsimulation.r3.SimTimer;
 
-/** Example code for {@link nl.jdj.jsimulation.r2}.
+/** Example code for {@link nl.jdj.jsimulation}.
  * 
  */
 public final class Main
