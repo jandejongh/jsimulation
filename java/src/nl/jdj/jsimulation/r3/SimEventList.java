@@ -237,7 +237,7 @@ public class SimEventList<E extends SimEvent>
     }
   }
 
-  private boolean running = false;
+  private volatile boolean running = false;
     
   /** Run the event list until it is empty (or until interrupted).
    * 

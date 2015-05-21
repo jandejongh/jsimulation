@@ -1,7 +1,7 @@
 package nl.jdj.jsimulation.r3;
 
 /** A general-purpose timer.
- * 
+ *
  * This abstract timer class hides the details of scheduling a {@link SimEvent} with
  * an appropriate {@link SimEventAction} on a {@link SimEventList} and
  * instead uses a callback method {@link #expireAction} to
@@ -19,20 +19,23 @@ package nl.jdj.jsimulation.r3;
  * but once expired or canceled, the timer can be rescheduled, even on a different
  * {@link SimEventList}.
  * An attempt to schedule an already scheduled timer will result in a {@link RuntimeException}.
- * 
+ *
  */
 public abstract class SimTimer
 {
 
   public final String NAME;
-  
+
+  private final SimEvent EXPIRE_EVENT;
+
   public SimTimer (String name)
   {
     this.NAME = (name == null) ? "" : name;
+    this.EXPIRE_EVENT = new SimEvent (this.NAME + "_expire", 0.0, null, this.EXPIRE_EVENT_ACTION);
   }
-  
+
   private SimEventList eventList = null;
-  
+
   private final SimEventAction EXPIRE_EVENT_ACTION = new SimEventAction ()
   {
 
@@ -44,53 +47,50 @@ public abstract class SimTimer
     }
 
   };
-  
-  private final SimEvent EXPIRE_EVENT
-    = new SimEvent (this.NAME + "_expire", 0.0, null, this.EXPIRE_EVENT_ACTION);
-  
+
   /** Abstract method that is invoked upon expiration of the timer.
-   * 
+   *
    * @param time The current time at expiration.
-   * 
+   *
    */
   public abstract void expireAction (double time);
-  
+
   /** Method that is invoked upon scheduling the timer.
-   * 
+   *
    * The default implementation does nothing.
-   * 
+   *
    * @param time The current time when scheduling.
-   * 
+   *
    */
   public void scheduleAction (double time)
   {
   }
-  
+
   /** Method that is invoked upon canceling the timer.
-   * 
+   *
    * The default implementation does nothing.
    * Note that this method is only invoked if the timer was actually
    * scheduled on a {@link SimEventList} when {@link #cancel} was invoked.
-   * 
+   *
    * @param time The current time when canceling.
-   * 
+   *
    */
   public void cancelAction (double time)
   {
   }
-  
+
   /** Schedule this timer on an event list.
-   * 
+   *
    * Invokes {@link #scheduleAction} once the appropriate event is scheduled on the event lList.
-   * 
+   *
    * <p>Note that this method take the current time from the event list to which it adds a delay
    * in order to schedule the expiration event.
    * Especially in between event-list runs, the current time may be {@link Double#NEGATIVE_INFINITY},
    * leading to indefinite rescheduling of the times at negative infinite.
-   * 
+   *
    * @param delay The delay until expiration.
    * @param eventList The event list.
-   * 
+   *
    * @throws IllegalArgumentException If delay is negative or infinite (positive or negative),
    *                                    the eventList is null,
    *                                    or the current time on the event list is negative or positive infinity.
@@ -108,13 +108,13 @@ public abstract class SimTimer
     this.eventList.add (this.EXPIRE_EVENT);
     scheduleAction (this.eventList.getTime ());
   }
-  
+
   /** Cancel a pending timer.
-   * 
+   *
    * Ignored if this timer is not scheduled.
    * Invokes {@link #cancelAction} after removal of the appropriate event on the event list
    * (and not if the timer was previously unscheduled).
-   * 
+   *
    */
   public void cancel ()
   {
@@ -126,5 +126,5 @@ public abstract class SimTimer
       cancelAction (time);
     }
   }
-  
+
 }
