@@ -274,6 +274,7 @@ public class SimEventList<E extends SimEvent>
   /** Run the event list until it is empty (or until interrupted).
    * 
    * @throws IllegalStateException If the method is invoked recursively (or from another thread before finishing).
+   * 
    */
   @Override
   public void run ()
