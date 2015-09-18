@@ -32,7 +32,7 @@ import java.util.TreeSet;
  * In between event-list runs ({@link #run}), the event list can be safely added to and removed from. While running the list,
  * events can be added and removed at will, as long as no events are added that are in the past. The list will throw an exception
  * when noting this. Adding events with time equal to the current time is always safe though; such events will always be
- * executed after the current event (must other events may precede!).
+ * executed after the current event (though other events may precede in between!).
  * 
  * <p>
  * Note that events that have the same time, are processed in random order! This event list does not maintain insertion order!

@@ -8,7 +8,11 @@ package nl.jdj.jsimulation.r4;
  *   <li>when an update occurs during list processing (a strictly positive jump in time), and,
  *   <li>when the list is empty.
  * </ul>
- * Note that the first event can only be issued when the event is not being processed.
+ * Note that the first notification can only be issued when the event is not being processed.
+ * 
+ * <p>
+ * If, in addition, you want to be notified of processing individual events in sequence,
+ * implement {@link Fine}.
  *
  */
 public interface SimEventListListener
