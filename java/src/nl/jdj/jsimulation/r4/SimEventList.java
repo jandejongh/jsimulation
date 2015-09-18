@@ -17,7 +17,10 @@ import java.util.TreeSet;
  * 
  * <p>
  * The process of running an event list is simply to repeatedly remove the first element of the underlying {@link TreeSet},
- * until the set is empty. This means you can for instance 
+ * until the set is empty. This means you can for instance schedule new events from within the context of execution of
+ * an event. However, <i>all</i> scheduled events this way must <i>not</i> be in the past.
+ * This is rigorously checked for! If the event list discovers the insertion of new {@link SimEvent}s in the past,
+ * it will throw an exception!
  * 
  * <p>
  * An event-list instance can be reused by resetting the time, which is done through {@link #reset}, after which time is
@@ -28,15 +31,17 @@ import java.util.TreeSet;
  * <p>
  * In between event-list runs ({@link #run}), the event list can be safely added to and removed from. While running the list,
  * events can be added and removed at will, as long as no events are added that are in the past. The list will throw an exception
- * when noting this. Adding events with time equal to the current time is always safe though.
+ * when noting this. Adding events with time equal to the current time is always safe though; such events will always be
+ * executed after the current event (must other events may precede!).
  * 
  * <p>
  * Note that events that have the same time, are processed in random order! This event list does not maintain insertion order!
  * 
  * <p>
  * While running, the event-list maintains the notion of updates, being "jumps in time".
- * So, as long as the list processes events with equal times, it does not fire an update.
- * The concept of updates is very useful for statistics.
+ * So, as long as the list processes events with equal times, it does not fire such an update.
+ * The concept of updates is very useful for statistics, in particular, for integration/averaging, since these
+ * operations require non-trivial time steps for updates.
  * Note that irrespective of its time, the first event processed during a run always fires an update.
  * 
  * <p>
@@ -49,6 +54,16 @@ import java.util.TreeSet;
  * <p>
  * The current implementation is not thread-safe.
  * An event list is really meant to be processed and operated upon by a single thread only.
+ * 
+ * <p>
+ * As of r4, a {@link SimEventList} is capable of generating suitable {@link SimEvent}s itself,
+ * for instance to schedule user-provided {@link SimEventAction}s at a specific time.
+ * This allowed the inclusion of several convenience methods for scheduling in r4.
+ * However, this required the availability of some user-provided factory for {@link SimEvent}s in r4,
+ * which was implemented as a {@link Class} parameter in the constructor;
+ * the <code>Class</code> giving access to a suitable (parameter-less) constructor for internally-generated
+ * {@link SimEvent}s.
+ * However, this came at the major expense of incompatibility between r4 and r3 uses.
  * 
  * @param <E> The type of {@link SimEvent}s supported.
  * 
