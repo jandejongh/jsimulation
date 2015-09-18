@@ -1,4 +1,4 @@
-package nl.jdj.jsimulation.r3;
+package nl.jdj.jsimulation.r4;
 
 /** A general-purpose timer.
  *
@@ -7,14 +7,20 @@ package nl.jdj.jsimulation.r3;
  * instead uses a callback method {@link #expireAction} to
  * notify concrete subclasses of timer expiration.
  * Concrete subclasses only have to override {@link #expireAction}.
+ * 
+ * <p>
  * The timer is scheduled on a {@link SimEventList} through
  * {@link #schedule}, passing the (positive or zero) delay.
  * Upon scheduling, the override-able {@link #scheduleAction} is invoked
  * (the default implementation does nothing).
+ * 
+ * <p>
  * Canceling a pending timer event is supported through {@link #cancel}.
  * Canceling a timer that is not currently scheduled has no effect.
  * Upon cancellation, the override-able {@link #cancelAction} is invoked
  * (the default implementation does nothing).
+ * 
+ * <p>
  * A timer can only be scheduled on a single {@link SimEventList} at a time,
  * but once expired or canceled, the timer can be rescheduled, even on a different
  * {@link SimEventList}.
