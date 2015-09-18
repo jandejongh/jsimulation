@@ -198,4 +198,12 @@ public class SimEvent<T>
     this ("No Name", time, object, eventAction);
   }
 
+  /** Creates a new {@link SimEvent} name \"No Name\", time at negative infinity and <code>null</code> object and action.
+   * 
+   */
+  public SimEvent ()
+  {
+    this (Double.NEGATIVE_INFINITY, null, null);
+  }
+
 }
