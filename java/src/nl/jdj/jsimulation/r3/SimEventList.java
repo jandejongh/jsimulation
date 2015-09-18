@@ -303,6 +303,10 @@ public class SimEventList<E extends SimEvent>
   
   /** Schedules an action at given time.
    * 
+   * Note that if the <code>action</code> argument is <code>null</code>,
+   * a {@link SimEvent} is still created and scheduled
+   * with <code>null</code> {@link SimEventAction}.
+   * 
    * @param time The schedule time for the action.
    * @param action The action to schedule, may be <code>null</code>.
    * 
