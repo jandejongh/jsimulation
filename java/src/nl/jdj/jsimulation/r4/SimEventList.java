@@ -289,6 +289,7 @@ public class SimEventList<E extends SimEvent>
       for (SimEventListListener.Fine l : this.fineListeners)
         l.notifyNextEvent (this, this.lastUpdateTime);
       final E e = pollFirst ();
+      // Updates this.lastUpdateTime.
       checkUpdate (e);
       final SimEventAction a = e.getEventAction ();
       if (a != null)
