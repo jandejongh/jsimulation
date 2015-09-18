@@ -51,7 +51,7 @@ public class SimEventListTest
   public void testGetTime ()
   {
     System.out.println ("getTime");
-    SimEventList instance = new SimEventList ();
+    SimEventList instance = new SimEventList (SimEvent.class);
     double expResult = Double.NEGATIVE_INFINITY;
     double result = instance.getTime ();
     assertEquals (expResult, result, 0.0);
@@ -72,7 +72,7 @@ public class SimEventListTest
   public void testReset ()
   {
     System.out.println ("reset");
-    SimEventList instance = new SimEventList ();
+    SimEventList instance = new SimEventList (SimEvent.class);
     SimEvent e1 = new SimEvent (15.8, null, null);
     instance.add (e1);
     SimEvent e2 = new SimEvent (10.0, null, null);
@@ -117,7 +117,7 @@ public class SimEventListTest
   public void testAddUpdateSimEventAction ()
   {
     System.out.println ("addUpdateSimEventAction");
-    SimEventList instance = new SimEventList ();
+    SimEventList instance = new SimEventList (SimEvent.class);
     SimEvent e1 = new SimEvent (15.8, null, null);
     instance.add (e1);
     SimEvent e2 = new SimEvent (10.0, null, null);
@@ -127,7 +127,7 @@ public class SimEventListTest
     instance.run ();
     if (this.updateListenerCalled)
       fail ("Update listener should not be called.");
-    instance = new SimEventList ();
+    instance = new SimEventList (SimEvent.class);
     instance.add (e1);
     instance.add (e2);
     instance.addUpdateSimEventAction (this.updateListener);
@@ -145,7 +145,7 @@ public class SimEventListTest
   public void testRemoveUpdateSimEventAction ()
   {
     System.out.println ("removeUpdateSimEventAction");
-    SimEventList instance = new SimEventList ();
+    SimEventList instance = new SimEventList (SimEvent.class);
     SimEvent e1 = new SimEvent (15.8, null, null);
     instance.add (e1);
     SimEvent e2 = new SimEvent (10.0, null, null);
@@ -156,7 +156,7 @@ public class SimEventListTest
     instance.run ();
     if (! this.updateListenerCalled)
       fail ("Update listener should have been called.");
-    instance = new SimEventList ();
+    instance = new SimEventList (SimEvent.class);
     instance.add (e1);
     instance.add (e2);
     instance.addUpdateSimEventAction (this.updateListener);
@@ -175,7 +175,7 @@ public class SimEventListTest
   public void testCheckUpdate ()
   {
     System.out.println ("checkUpdate");
-    SimEventList instance = new SimEventList ();
+    SimEventList instance = new SimEventList (SimEvent.class);
     SimEvent e = new SimEvent (15.8, null, null);
     instance.checkUpdate (e);
     double expResult = 15.8;
@@ -210,7 +210,7 @@ public class SimEventListTest
   public void testRun ()
   {
     System.out.println ("run");
-    final SimEventList instance = new SimEventList ();
+    final SimEventList instance = new SimEventList (SimEvent.class);
     this.action1Done = false;
     this.action2Done = false;
     SimEventAction action1 = new SimEventAction ()

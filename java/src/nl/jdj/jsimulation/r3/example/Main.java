@@ -47,7 +47,7 @@ public final class Main
       }
     };
     System.out.println ("-> Creating and populating event list with events at one-second interval...");
-    final SimEventList<SimEvent> el = new SimEventList<> ();
+    final SimEventList<SimEvent> el = new SimEventList<> (SimEvent.class);
     for (int n = 0; n < 15; n++)
       el.add (new SimEvent<> ((double) n, n, (n % 2 == 0) ? a1 : a2));
     System.out.println ("-> Executing event list...");

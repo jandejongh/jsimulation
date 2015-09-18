@@ -62,6 +62,7 @@ public class SimEventList<E extends SimEvent>
 {
 
   private double lastUpdateTime = Double.NEGATIVE_INFINITY;
+  
   private boolean firstUpdate = true;
   
   /** Returns the current time during processing of the event list.
@@ -193,24 +194,38 @@ public class SimEventList<E extends SimEvent>
       this.fineListeners.remove ((SimEventListListener.Fine) l);
   }
   
+  private final Class<E> eventClass;
+  
   /** Creates a new {@link SimEventList} with default {@link Comparator}.
+   * 
+   * The base class for {@link SimEvent}s supported, viz., {@link E}, must feature a constructor with no arguments.
+   * 
+   * @param eventClass The base class {@link SimEvent}s supported.
    * 
    * @see DefaultSimEventComparator
    * 
    */
-  public SimEventList ()
+  public SimEventList (final Class<E> eventClass)
   {
-    this (new DefaultSimEventComparator ());
+    this (new DefaultSimEventComparator (), eventClass);
   }
 
   /** Creates a new {@link SimEventList} with given {@link Comparator}.
    * 
+   * The base class for {@link SimEvent}s supported, viz., {@link E}, must feature a constructor with no arguments.
+   * 
    * @param comparator The comparator for {@link SimEvent}s.
+   * @param eventClass The base class {@link SimEvent}s supported.
+   * 
+   * @throws IllegalArgumentException If <code>eventClass</code> is <code>null</code>.
    * 
    */
-  public SimEventList (Comparator comparator)
+  public SimEventList (final Comparator comparator, final Class<E> eventClass)
   {
     super (comparator);
+    if (eventClass == null)
+      throw new IllegalArgumentException ();
+    this.eventClass = eventClass;
   }
 
   /** Checks the progress of time when processing a given event
@@ -266,6 +281,54 @@ public class SimEventList<E extends SimEvent>
       for (SimEventListListener l : this.listeners)
         l.notifyEventListEmpty (this, this.lastUpdateTime);
     this.running = false;
+  }
+  
+  /** Schedules an event on this list, taking the schedule time from the event itself.
+   * 
+   * @param event The event.
+   * 
+   * @throws IllegalArgumentException If the event is <code>null</code>, has a schedule time in the past, or
+   *                                  is already scheduled.
+   * 
+   * @see #getTime
+   * @see SimEvent#getTime
+   * 
+   */
+  public final void schedule (E event)
+  {
+    if (event == null || event.getTime () < getTime () || contains (event))
+      throw new IllegalArgumentException ();
+    add (event);
+  }
+  
+  /** Schedules an action at given time.
+   * 
+   * @param time The schedule time for the action.
+   * @param action The action to schedule, may be <code>null</code>.
+   * 
+   * @return The new (scheduled) event.
+   * 
+   * @throws IllegalArgumentException If the schedule time is the past.
+   * @throws IllegalStateException If a new {@link SimEvent} could not be instantiated.
+   * 
+   */
+  public final E schedule (final double time, SimEventAction action)
+  {
+    if (time < getTime ())
+      throw new IllegalArgumentException ();
+    try
+    {
+      final E event = this.eventClass.newInstance ();
+      event.setTime (time);
+      event.setEventAction (action);
+      event.setObject (null);
+      schedule (event);
+      return event;
+    }
+    catch (InstantiationException | IllegalAccessException e)
+    {
+      throw new IllegalStateException (e);
+    }
   }
   
 }
