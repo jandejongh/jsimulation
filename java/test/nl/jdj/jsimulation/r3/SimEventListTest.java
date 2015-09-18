@@ -257,4 +257,113 @@ public class SimEventListTest
     assert this.action1Done;
   }
   
+  private class TestSimEventAction
+  implements SimEventAction
+  {
+    private boolean executed = false;
+    private double executionTime = Double.NEGATIVE_INFINITY;
+    @Override
+    public void action (SimEvent event)
+    {
+      assert ! this.executed;
+      this.executed = true;
+      this.executionTime = event.getTime ();
+    }
+  }
+  
+  private class ReschedulingSimEvent
+  extends SimEvent
+  {
+    private final SimEventList eventList;
+    private int count = 0;
+    private final int maxCount;
+    private final double interval;
+    private double lastActionTime = Double.NEGATIVE_INFINITY;
+    private ReschedulingSimEvent (final SimEventList eventList, final int maxCount, final double interval)
+    {
+      this.eventList = eventList;
+      this.maxCount = maxCount;
+      this.interval = interval;
+      setEventAction (new SimEventAction ()
+      {
+        @Override
+        public void action (SimEvent event)
+        {
+          count++;
+          lastActionTime = event.getTime ();
+          if (count < maxCount)
+            eventList.reschedule (event.getTime () + interval, event);
+        }
+      });
+    }
+    
+  }
+  
+  /**
+   * Test of various schedule/reschedule methods, of class SimEventList.
+   */
+  @Test
+  public void testSchedule ()
+  {
+    System.out.println ("schedule");
+    final SimEventList el = new SimEventList (SimEvent.class);
+    final TestSimEventAction a1 = new TestSimEventAction ();
+    final TestSimEventAction a2 = new TestSimEventAction ();
+    el.schedule (15.0, a1);
+    el.schedule (-40.0, a2);
+    el.run ();
+    assert a1.executed;
+    assertEquals (15.0, a1.executionTime, 0.0);
+    assert a2.executed;
+    assertEquals (-40.0, a2.executionTime, 0.0);
+    el.reset ();
+    a1.executed = false;
+    a2.executed = false;
+    final SimEvent e1 = el.schedule (15.0, a1);
+    try
+    {
+      el.schedule (e1);
+      fail ("Attempt to schedule already scheduled event should fail!");
+    }
+    catch (IllegalArgumentException iae)
+    {
+    }
+    try
+    {
+      el.schedule (39.4, e1);
+      fail ("Attempt to schedule already scheduled event should fail!");
+    }
+    catch (IllegalArgumentException iae)
+    {
+    }
+    el.reschedule (-123455.0, e1);
+    el.reschedule (-77.0, e1);
+    el.run ();
+    assert a1.executed;
+    assertEquals (-77.0, a1.executionTime, 0.0);
+    el.reset ();
+    a1.executed = false;
+    a2.executed = false;
+    el.reschedule (-459.0, e1);
+    el.run ();
+    assert a1.executed;
+    assertEquals (-459.0, a1.executionTime, 0.0);
+    el.reset ();
+    a1.executed = false;
+    a2.executed = false;
+    final ReschedulingSimEvent rse1 = new ReschedulingSimEvent (el, 10, 10.0);
+    el.schedule (0.0, rse1);
+    el.run ();
+    assertEquals (rse1.maxCount, rse1.count);
+    assertEquals ((rse1.maxCount - 1) * rse1.interval, rse1.lastActionTime, 0.0);
+    el.reset ();
+    a1.executed = false;
+    a2.executed = false;
+    final ReschedulingSimEvent rse2 = new ReschedulingSimEvent (el, 100, 0);
+    el.schedule (0.0, rse2);
+    el.run ();
+    assertEquals (rse2.maxCount, rse2.count);
+    assertEquals (0, rse2.lastActionTime, 0.0);
+  }
+  
 }

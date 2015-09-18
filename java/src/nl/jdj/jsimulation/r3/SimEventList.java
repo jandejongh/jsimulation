@@ -247,8 +247,10 @@ public class SimEventList<E extends SimEvent>
     {
       this.lastUpdateTime = e.getTime ();
       this.firstUpdate = false;
-      for (SimEventListListener l : this.listeners) l.notifyEventListUpdate (this, this.lastUpdateTime);
-      for (SimEventAction a : this.updateListeners) a.action (e);
+      for (SimEventListListener l : this.listeners)
+        l.notifyEventListUpdate (this, this.lastUpdateTime);
+      for (SimEventAction a : this.updateListeners)
+        a.action (e);
     }
   }
 
@@ -283,9 +285,58 @@ public class SimEventList<E extends SimEvent>
     this.running = false;
   }
   
+  /** Schedules an event on this list, at given time (overriding the time set on the event itself).
+   * 
+   * The time on the {@link SimEvent} argument is overwritten.
+   * 
+   * @param time The schedule time for the event.
+   * @param event The event to schedule.
+   * 
+   * @throws IllegalArgumentException If the event is <code>null</code> or already scheduled,
+   *                                  or the schedule time is in the past.
+   * 
+   * @see SimEvent#setTime
+   * @see #getTime
+   * 
+   */
+  public final void schedule (final double time, final E event)
+  {
+    if (event == null)
+      throw new IllegalArgumentException ();
+    event.setTime (time);
+    schedule (event);
+  }
+  
+  /** Reschedules an event on this list, at given time (overriding the time set on the event itself).
+   * 
+   * The time on the {@link SimEvent} argument is overwritten.
+   * 
+   * <p>
+   * This method reinserts the event (after setting the new time on it) into the event list.
+   * If the event is not present in the list, this effects of this method are identical to those of
+   * {@link #schedule(double, E)}.
+   * 
+   * @param time The (new) schedule time for the event.
+   * @param event The event to (re)schedule.
+   * 
+   * @throws IllegalArgumentException If the event is <code>null</code>,
+   *                                  or the new schedule time is in the past.
+   * 
+   * @see SimEvent#setTime
+   * @see #getTime
+   * 
+   */
+  public final void reschedule (final double time, final E event)
+  {
+    if (event == null)
+      throw new IllegalArgumentException ();
+    remove (event);
+    schedule (time, event);
+  }
+  
   /** Schedules an event on this list, taking the schedule time from the event itself.
    * 
-   * @param event The event.
+   * @param event The event to schedule.
    * 
    * @throws IllegalArgumentException If the event is <code>null</code>, has a schedule time in the past, or
    *                                  is already scheduled.
@@ -294,7 +345,7 @@ public class SimEventList<E extends SimEvent>
    * @see SimEvent#getTime
    * 
    */
-  public final void schedule (E event)
+  public final void schedule (final E event)
   {
     if (event == null || event.getTime () < getTime () || contains (event))
       throw new IllegalArgumentException ();
@@ -316,7 +367,7 @@ public class SimEventList<E extends SimEvent>
    * @throws IllegalStateException If a new {@link SimEvent} could not be instantiated.
    * 
    */
-  public final E schedule (final double time, SimEventAction action)
+  public final E schedule (final double time, final SimEventAction action)
   {
     if (time < getTime ())
       throw new IllegalArgumentException ();
@@ -333,6 +384,54 @@ public class SimEventList<E extends SimEvent>
     {
       throw new IllegalStateException (e);
     }
+  }
+  
+  /** Schedules an event on this list at current time (overriding the time set on the event itself).
+   * 
+   * The time on the {@link SimEvent} argument is overwritten.
+   * 
+   * <p>
+   * There is no guarantee that the new scheduled event will be the next event to be executed.
+   * 
+   * <p>
+   * Note that it is legal to reschedule the event currently being executed from within its {@link SimEvent#getEventAction},
+   * even at the same time (in which case the action is invoked again, with the same time argument).
+   * 
+   * @param event The event to schedule.
+   * 
+   * @throws IllegalArgumentException If the event is <code>null</code> or already scheduled.
+   * 
+   * @see SimEvent#setTime
+   * @see #getTime
+   * 
+   */
+  public final void scheduleNow (final E event)
+  {
+    if (event == null)
+      throw new IllegalArgumentException ();
+    event.setTime (getTime ());
+    schedule (event);
+  }
+  
+  /** Schedules an action now.
+   * 
+   * Note that if the <code>action</code> argument is <code>null</code>,
+   * a {@link SimEvent} is still created and scheduled
+   * with <code>null</code> {@link SimEventAction}.
+   * 
+   * <p>
+   * There is no guarantee that the new scheduled event will be the next event to be executed.
+   * 
+   * @param action The action to schedule, may be <code>null</code>.
+   * 
+   * @return The new (scheduled) event.
+   * 
+   * @throws IllegalStateException If a new {@link SimEvent} could not be instantiated.
+   * 
+   */
+  public final E scheduleNow (final SimEventAction action)
+  {
+    return schedule (getTime (), action);
   }
   
 }
