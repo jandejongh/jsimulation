@@ -245,6 +245,22 @@ public class SimEventListTest
     };
     SimEvent e2 = new SimEvent (10.0, null, action2);
     instance.add (e2);
+    instance.runUntil (10, false);
+    assert ! instance.isEmpty ();
+    assert ! this.action1Done;
+    assert ! this.action2Done;
+    instance.runUntil (10, true);
+    assert ! instance.isEmpty ();
+    assert ! this.action1Done;
+    assert this.action2Done;
+    instance.runUntil (15, true);
+    assert ! instance.isEmpty ();
+    assert ! this.action1Done;
+    assert this.action2Done;
+    instance.runUntil (20, false);
+    assert instance.isEmpty ();
+    assert this.action1Done;
+    assert this.action2Done;
     instance.run ();
     assert instance.isEmpty ();
     // Should be able to execute the event list again...

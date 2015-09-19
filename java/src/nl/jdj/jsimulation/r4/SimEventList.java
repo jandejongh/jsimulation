@@ -270,14 +270,30 @@ public class SimEventList<E extends SimEvent>
   }
 
   private volatile boolean running = false;
-    
-  /** Run the event list until it is empty (or until interrupted).
+  
+  /** Run the event list until it is empty, interrupted, or until a specific point in time has been reached.
+   * 
+   * After returning from this method, it can be invoked later, but the end time passed must not decrease in this sequence.
+   * See also {@link #reset}.
+   * 
+   * <p>
+   * Note that upon return, the time on the event list is set to that of the last event processed.
+   * This may be smaller than the end time provided!
+   * (In other words, this method does not set the time on the event list to the end time provided,
+   * but only uses the end time as a criterion for stopping event processing and returning from this method.)
+   * 
+   * @param endTime The time until which to run the event list.
+   * @param inclusive Whether to include events at the end time parameter.
    * 
    * @throws IllegalStateException If the method is invoked recursively (or from another thread before finishing).
+   * @throws IllegalArgumentException If <code>endTime<//code> is in the past.
+   * 
+   * @see #getTime
+   * @see SimEvent#getTime
+   * @see #run
    * 
    */
-  @Override
-  public void run ()
+  public final void runUntil (final double endTime, final boolean inclusive)
   {
     synchronized (this)
     {
@@ -285,11 +301,18 @@ public class SimEventList<E extends SimEvent>
         throw new IllegalStateException ();
       this.running = true;
     }
-    while ((! isEmpty ()) && ! Thread.interrupted ())
+    if (endTime < getTime ())
+    {
+      this.running = false;
+      throw new IllegalArgumentException ();
+    }
+    while ((! isEmpty ())
+      && (first ().getTime () < endTime || (inclusive && first ().getTime () == endTime))
+      && ! Thread.interrupted ())
     {
       for (SimEventListListener.Fine l : this.fineListeners)
         l.notifyNextEvent (this, this.lastUpdateTime);
-      final E e = pollFirst ();
+      final E e = pollFirst ();      
       // Updates this.lastUpdateTime.
       checkUpdate (e);
       final SimEventAction a = e.getEventAction ();
@@ -300,6 +323,19 @@ public class SimEventList<E extends SimEvent>
       for (SimEventListListener l : this.listeners)
         l.notifyEventListEmpty (this, this.lastUpdateTime);
     this.running = false;
+  }
+  
+  /** Run the event list until it is empty (or until interrupted).
+   * 
+   * @throws IllegalStateException If the method is invoked recursively (or from another thread before finishing).
+   * 
+   * @see #runUntil
+   * 
+   */
+  @Override
+  public void run ()
+  {
+    runUntil (Double.POSITIVE_INFINITY, true);
   }
   
   /** Schedules an event on this list, at given time (overriding the time set on the event itself).
