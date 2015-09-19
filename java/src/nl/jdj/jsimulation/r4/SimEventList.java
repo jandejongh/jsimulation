@@ -286,7 +286,7 @@ public class SimEventList<E extends SimEvent>
    * @param inclusive Whether to include events at the end time parameter.
    * 
    * @throws IllegalStateException If the method is invoked recursively (or from another thread before finishing).
-   * @throws IllegalArgumentException If <code>endTime<//code> is in the past.
+   * @throws IllegalArgumentException If <code>endTime</code> is in the past.
    * 
    * @see #getTime
    * @see SimEvent#getTime
