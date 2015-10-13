@@ -23,8 +23,10 @@ import java.util.TreeSet;
  * it will throw an exception!
  * 
  * <p>
- * An event-list instance can be reused by resetting the time, which is done through {@link #reset}, after which time is
- * {@link Double#NEGATIVE_INFINITY} again. Obviously, this should not be done while processing the event list (e.g., this should
+ * An event-list instance can be reused by resetting the time, which is done through {@link #reset}, after which
+ * the list is empty and time is {@link Double#NEGATIVE_INFINITY} again.
+ * It is also possible to reset to a specific time (still clearing the event list, though).
+ * Obviously, resetting should not be done while processing the event list (e.g., this should
  * probably not be done from within an event action), as this will result in the list throwing an exception (noting time is no
  * longer non-decreasing).
  * 
@@ -92,6 +94,7 @@ public class SimEventList<E extends SimEvent>
 
   /** Resets the event list.
    * 
+   * Removes all events, and sets time to negative infinity.
    * An exception is thrown if the event list is currently running.
    * 
    * @throws IllegalStateException If the event list is currently running.
@@ -106,8 +109,8 @@ public class SimEventList<E extends SimEvent>
   
   /** Resets the event list to a specific time.
    * 
-   * An exception is thrown if the event list is currently running,
-   * or the time argument is beyond the event time of the first element in this list, if any.
+   * Removes all events, and sets time to the given value.
+   * An exception is thrown if the event list is currently running.
    * 
    * @param time The new time of the event list.
    * 
@@ -122,8 +125,7 @@ public class SimEventList<E extends SimEvent>
     {
       if (this.running)
         throw new IllegalStateException ();
-      if ((! isEmpty ()) && first ().getTime () < time)
-        throw new IllegalArgumentException ();
+      clear ();
       this.lastUpdateTime = time;
       this.firstUpdate = true;
     }
@@ -336,6 +338,33 @@ public class SimEventList<E extends SimEvent>
   public void run ()
   {
     runUntil (Double.POSITIVE_INFINITY, true);
+  }
+  
+  /** Runs a single (the first) event from the event list ("single-stepping").
+   * 
+   */
+  public final void runSingleStep ()
+  {
+    synchronized (this)
+    {
+      if (isEmpty ())
+        return;
+      if (this.running)
+        throw new IllegalStateException ();
+      this.running = true;
+    }
+    for (SimEventListListener.Fine l : this.fineListeners)
+      l.notifyNextEvent (this, this.lastUpdateTime);
+    final E e = pollFirst ();      
+    // Updates this.lastUpdateTime.
+    checkUpdate (e);
+    final SimEventAction a = e.getEventAction ();
+    if (a != null)
+      a.action (e);
+    if (isEmpty ())
+      for (SimEventListListener l : this.listeners)
+        l.notifyEventListEmpty (this, this.lastUpdateTime);
+    this.running = false;
   }
   
   /** Schedules an event on this list, at given time (overriding the time set on the event itself).
