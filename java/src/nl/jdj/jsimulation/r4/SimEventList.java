@@ -265,6 +265,31 @@ public class SimEventList<E extends SimEvent>
     this.eventClass = eventClass;
   }
 
+  /** Checks the progress of time and notifies listeners when an update has taken place.
+   * 
+   * An update is defined as the processing of the first event or an increase in the current time.
+   * If needed, this method updates the current time.
+   * 
+   * @param newTime The new time.
+   * 
+   * @throws IllegalArgumentException If this is not the first update (after construction or after a reset)
+   *                                  and the new time is strictly smaller than the current time.
+   * @see #getTime
+   * @see #fireUpdate
+   * 
+   */ 
+  protected final void checkUpdate (final double newTime)
+  {
+    if ((! this.firstUpdate) && newTime < this.lastUpdateTime)
+      throw new IllegalArgumentException ();
+    if (this.firstUpdate || newTime > this.lastUpdateTime)
+    {
+      this.lastUpdateTime = newTime;
+      this.firstUpdate = false;
+      fireUpdate ();
+    }
+  }
+
   /** Checks the progress of time when processing a given event
    * and notifies listeners when an update has taken place.
    * 
@@ -273,18 +298,19 @@ public class SimEventList<E extends SimEvent>
    * 
    * @param e The event being processed.
    * 
+   * @throws IllegalArgumentException If the event is <code>null</code> or if this is not the first update
+   *                                  (after construction or after a reset)
+   *                                  and the new time on the event is strictly smaller than the current time.
+   * 
    * @see #getTime
    * @see #fireUpdate
    * 
    */ 
-  protected void checkUpdate (E e)
+  protected final void checkUpdate (final E e)
   {
-    if (this.firstUpdate || e.getTime () > this.lastUpdateTime)
-    {
-      this.lastUpdateTime = e.getTime ();
-      this.firstUpdate = false;
-      fireUpdate ();
-    }
+    if (e == null)
+      throw new IllegalArgumentException ();
+    checkUpdate (e.getTime ());
   }
 
   private volatile boolean running = false;
@@ -295,13 +321,14 @@ public class SimEventList<E extends SimEvent>
    * See also {@link #reset}.
    * 
    * <p>
-   * Note that upon return, the time on the event list is set to that of the last event processed.
-   * This may be smaller than the end time provided!
-   * (In other words, this method does not set the time on the event list to the end time provided,
-   * but only uses the end time as a criterion for stopping event processing and returning from this method.)
+   * Optionally, but only if <code>inclusive == true</code>, the time on the event list is increased to the <code>endTime</code>
+   * argument.
+   * Otherwise, not that the current time on the event list may be smaller than the end time provided!
    * 
-   * @param endTime The time until which to run the event list.
-   * @param inclusive Whether to include events at the end time parameter.
+   * @param endTime          The time until which to run the event list.
+   * @param inclusive        Whether to include events at the end time parameter.
+   * @param setTimeToEndTime Whether to increase the current time to the end time given after processing the applicable events
+   *                         (ignored if <code>inclusive == false</code>).
    * 
    * @throws IllegalStateException If the method is invoked recursively (or from another thread before finishing).
    * @throws IllegalArgumentException If <code>endTime</code> is in the past.
@@ -311,7 +338,7 @@ public class SimEventList<E extends SimEvent>
    * @see #run
    * 
    */
-  public final void runUntil (final double endTime, final boolean inclusive)
+  public final void runUntil (final double endTime, final boolean inclusive, final boolean setTimeToEndTime)
   {
     synchronized (this)
     {
@@ -336,12 +363,17 @@ public class SimEventList<E extends SimEvent>
       if (a != null)
         a.action (e);
     }
+    if (inclusive && setTimeToEndTime && getTime () < endTime)
+      checkUpdate (endTime);
     if (isEmpty ())
       fireEmpty ();
     this.running = false;
   }
   
   /** Run the event list until it is empty (or until interrupted).
+   * 
+   * <p>
+   * This method leaves the time to that of the last event processed.
    * 
    * @throws IllegalStateException If the method is invoked recursively (or from another thread before finishing).
    * 
@@ -351,7 +383,7 @@ public class SimEventList<E extends SimEvent>
   @Override
   public void run ()
   {
-    runUntil (Double.POSITIVE_INFINITY, true);
+    runUntil (Double.POSITIVE_INFINITY, true, false);
   }
   
   /** Runs a single (the first) event from the event list ("single-stepping").
