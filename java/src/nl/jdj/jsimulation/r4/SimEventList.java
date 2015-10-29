@@ -452,7 +452,44 @@ public class SimEventList<E extends SimEvent>
    * a {@link SimEvent} is still created and scheduled
    * with <code>null</code> {@link SimEventAction}.
    * 
-   * @param time The schedule time for the action.
+   * @param time   The schedule time for the action.
+   * @param action The action to schedule, may be <code>null</code>.
+   * @param name   The name for the event, may be <code>null</code>.
+   * 
+   * @return The new (scheduled) event.
+   * 
+   * @throws IllegalArgumentException If the schedule time is the past.
+   * @throws IllegalStateException If a new {@link SimEvent} could not be instantiated.
+   * 
+   */
+  public final E schedule (final double time, final SimEventAction action, final String name)
+  {
+    if (time < getTime ())
+      throw new IllegalArgumentException ();
+    try
+    {
+      final E event = this.eventClass.newInstance ();
+      event.setTime (time);
+      event.setEventAction (action);
+      event.setObject (null);
+      if (name != null)
+        event.setName (name);
+      schedule (event);
+      return event;
+    }
+    catch (InstantiationException | IllegalAccessException e)
+    {
+      throw new IllegalStateException (e);
+    }
+  }
+  
+  /** Schedules an action at given time.
+   * 
+   * Note that if the <code>action</code> argument is <code>null</code>,
+   * a {@link SimEvent} is still created and scheduled
+   * with <code>null</code> {@link SimEventAction}.
+   * 
+   * @param time   The schedule time for the action.
    * @param action The action to schedule, may be <code>null</code>.
    * 
    * @return The new (scheduled) event.
@@ -463,21 +500,7 @@ public class SimEventList<E extends SimEvent>
    */
   public final E schedule (final double time, final SimEventAction action)
   {
-    if (time < getTime ())
-      throw new IllegalArgumentException ();
-    try
-    {
-      final E event = this.eventClass.newInstance ();
-      event.setTime (time);
-      event.setEventAction (action);
-      event.setObject (null);
-      schedule (event);
-      return event;
-    }
-    catch (InstantiationException | IllegalAccessException e)
-    {
-      throw new IllegalStateException (e);
-    }
+    return schedule (time, action, null);
   }
   
   /** Schedules an event on this list at current time (overriding the time set on the event itself).
@@ -517,6 +540,28 @@ public class SimEventList<E extends SimEvent>
    * There is no guarantee that the new scheduled event will be the next event to be executed.
    * 
    * @param action The action to schedule, may be <code>null</code>.
+   * @param name   The name for the event, may be <code>null</code>.
+   * 
+   * @return The new (scheduled) event.
+   * 
+   * @throws IllegalStateException If a new {@link SimEvent} could not be instantiated.
+   * 
+   */
+  public final E scheduleNow (final SimEventAction action, final String name)
+  {
+    return schedule (getTime (), action, name);
+  }
+
+  /** Schedules an action now.
+   * 
+   * Note that if the <code>action</code> argument is <code>null</code>,
+   * a {@link SimEvent} is still created and scheduled
+   * with <code>null</code> {@link SimEventAction}.
+   * 
+   * <p>
+   * There is no guarantee that the new scheduled event will be the next event to be executed.
+   * 
+   * @param action The action to schedule, may be <code>null</code>.
    * 
    * @return The new (scheduled) event.
    * 
@@ -525,7 +570,7 @@ public class SimEventList<E extends SimEvent>
    */
   public final E scheduleNow (final SimEventAction action)
   {
-    return schedule (getTime (), action);
+    return scheduleNow (action, null);
   }
   
 }
