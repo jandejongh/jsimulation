@@ -105,11 +105,23 @@ public class SimEventListTest
     double result = instance.getTime ();
     assertEquals (expResult, result, 0.0); 
     e = new SimEvent (13.2, null, null); // Before current time; should be ignored.
-    instance.checkUpdate (e);
+    try
+    {
+      instance.checkUpdate (e);
+      fail ("Attempt to update before current time should fail!");
+    }
+    catch (IllegalArgumentException iae)
+    {
+    }
     expResult = 15.8;
     result = instance.getTime ();
     assertEquals (expResult, result, 0.0); 
-    e = new SimEvent (42.0, null, null); // Before current time; should be ignored.
+    e = new SimEvent (42.0, null, null);
+    instance.checkUpdate (e);
+    expResult = 42.0;
+    result = instance.getTime ();
+    assertEquals (expResult, result, 0.0);
+    // Try again with same event (time); should be OK.
     instance.checkUpdate (e);
     expResult = 42.0;
     result = instance.getTime ();
@@ -168,19 +180,19 @@ public class SimEventListTest
     };
     SimEvent e2 = new SimEvent (10.0, null, action2);
     instance.add (e2);
-    instance.runUntil (10, false);
+    instance.runUntil (10, false, false);
     assert ! instance.isEmpty ();
     assert ! this.action1Done;
     assert ! this.action2Done;
-    instance.runUntil (10, true);
+    instance.runUntil (10, true, false);
     assert ! instance.isEmpty ();
     assert ! this.action1Done;
     assert this.action2Done;
-    instance.runUntil (15, true);
+    instance.runUntil (15, true, false);
     assert ! instance.isEmpty ();
     assert ! this.action1Done;
     assert this.action2Done;
-    instance.runUntil (20, false);
+    instance.runUntil (20, false, false);
     assert instance.isEmpty ();
     assert this.action1Done;
     assert this.action2Done;
