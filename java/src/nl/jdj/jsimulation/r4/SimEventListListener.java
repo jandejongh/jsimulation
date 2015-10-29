@@ -4,7 +4,7 @@ package nl.jdj.jsimulation.r4;
  * 
  * The listener is notified
  * <ul>
- *   <li>when the list is reset,
+ *   <li>when the list is reset (see {@link SimEventListResetListener}),
  *   <li>when an update occurs during list processing (a strictly positive jump in time), and,
  *   <li>when the list is empty.
  * </ul>
@@ -16,15 +16,9 @@ package nl.jdj.jsimulation.r4;
  *
  */
 public interface SimEventListListener
+extends SimEventListResetListener
 {
 
-  /** Notification of the event list being reset.
-   * 
-   * @param eventList The event list.
-   * 
-   */
-  public void notifyEventListReset (SimEventList eventList);
-  
   /** Notification of an update in the event list while processing it.
    * 
    * @param eventList The event list.

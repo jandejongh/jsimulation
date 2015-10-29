@@ -47,11 +47,8 @@ import java.util.TreeSet;
  * Note that irrespective of its time, the first event processed during a run always fires an update.
  * 
  * <p>
- * A {@link SimEventList} supports various notification mechanisms. First, a user can, at all times, register a
- * {@link SimEventAction} that is invoked when an update occurs. Seconds, a user can register as listener that will be
- * notified of reset and update events and also of the end of a run (i.e., an empty event list).
- * Specific types of listeners will even be notified of each individual event being removed from the list while running,
- * see {@link SimEventListListener.Fine}.
+ * A {@link SimEventList} supports various notification mechanisms to registered listeners,
+ * see {@link SimEventListResetListener}, {@link SimEventListListener} and {@link SimEventListListener.Fine}.
  * 
  * <p>
  * The current implementation is not thread-safe.
@@ -61,11 +58,10 @@ import java.util.TreeSet;
  * As of r4, a {@link SimEventList} is capable of generating suitable {@link SimEvent}s itself,
  * for instance to schedule user-provided {@link SimEventAction}s at a specific time.
  * This allowed the inclusion of several convenience methods for scheduling in r4.
- * However, this required the availability of some user-provided factory for {@link SimEvent}s in r4,
- * which was implemented as a {@link Class} parameter in the constructor;
+ * This requires the availability of some user-provided factory for {@link SimEvent}s in r4,
+ * which is implemented as a {@link Class} parameter in the constructor;
  * the <code>Class</code> giving access to a suitable (parameter-less) constructor for internally-generated
  * {@link SimEvent}s.
- * However, this came at the major expense of incompatibility between r4 and r3 uses.
  * 
  * @param <E> The type of {@link SimEvent}s supported.
  * 
@@ -117,6 +113,7 @@ public class SimEventList<E extends SimEvent>
    * @throws IllegalStateException If the event list is currently running.
    * 
    * @see #run
+   * @see #fireReset
    * 
    */
   public void reset (double time)
@@ -129,52 +126,15 @@ public class SimEventList<E extends SimEvent>
       this.lastUpdateTime = time;
       this.firstUpdate = true;
     }
-    for (SimEventListListener l : this.listeners)
-      l.notifyEventListReset (this);
+    fireReset ();
   }
   
-  /** The listeners to update to the current time in this event list.
-   * 
-   * Beware that listeners are only invoked upon changes in the time; which may the result of
-   * processing multiple events in sequence.
-   * 
-   * @see #getTime
+  /** The reset listeners to this event list.
    * 
    */
-  private final Set<SimEventAction> updateListeners = new HashSet<> ();
+  private final Set<SimEventListResetListener> resetListeners = new HashSet<> ();
   
-  /** Adds a listener for updates to the current time in this event list.
-   * 
-   * Beware that listeners are only invoked upon changes in the time; which may the result of
-   * processing multiple events in sequence.
-   * 
-   * @param a The action to be added.
-   * 
-   * @throws IllegalArgumentException If <code>a == null</code>.
-   * 
-   */
-  public final void addUpdateSimEventAction (SimEventAction a)
-  {
-    if (a == null)
-      throw new IllegalArgumentException ();
-    this.updateListeners.add (a);
-  }
-  
-  /** Removes a listener for updates to the current time in this event list.
-   * 
-   * @param a The action to be removed (ignored if not present).
-   * 
-   * @throws IllegalArgumentException If <code>a == null</code>.
-   * 
-   */
-  public final void removeUpdateSimEventAction (SimEventAction a)
-  {
-    if (a == null)
-      throw new IllegalArgumentException ();
-    this.updateListeners.remove (a);
-  }
-  
-  /** The listeners to this event list.
+  /** The (full) listeners to this event list.
    * 
    */
   private final Set<SimEventListListener> listeners = new HashSet<> ();
@@ -189,33 +149,93 @@ public class SimEventList<E extends SimEvent>
    * @param l The listener to be added, ignored if <code>null</code>.
    * 
    */
-  public final void addListener (SimEventListListener l)
+  public final void addListener (SimEventListResetListener l)
   {
     if (l != null)
     {
-      this.listeners.add (l);
       if (l instanceof SimEventListListener.Fine)
         this.fineListeners.add ((SimEventListListener.Fine) l);
+      else if (l instanceof SimEventListListener)
+        this.listeners.add ((SimEventListListener) l);
+      else
+        this.resetListeners.add (l);
     }
   }
   
-  /** Removes a listener to this event list.
+  /** Removes a listener from this event list.
    * 
    * @param l The listener to be removed, ignored if <code>null</code> or not present.
    * 
    */
-  public final void removeListener (SimEventListListener l)
+  public final void removeListener (SimEventListResetListener l)
   {
-    this.listeners.remove (l);
-    if (l instanceof SimEventListListener.Fine)
-      this.fineListeners.remove ((SimEventListListener.Fine) l);
+    if (l != null)
+    {
+      this.resetListeners.remove (l);
+      if (l instanceof SimEventListListener)
+        this.listeners.remove ((SimEventListListener) l);
+      if (l instanceof SimEventListListener.Fine)
+        this.fineListeners.remove ((SimEventListListener.Fine) l);
+    }
+  }
+
+  /** Fires a reset notification to registered listeners.
+   * 
+   * @see SimEventListResetListener#notifyEventListReset
+   * 
+   */
+  protected final void fireReset ()
+  {
+    for (SimEventListListener.Fine l : this.fineListeners)
+      l.notifyEventListReset (this);
+    for (SimEventListListener l : this.listeners)
+      l.notifyEventListReset (this);
+    for (SimEventListResetListener l : this.resetListeners)
+      l.notifyEventListReset (this);
+  }
+  
+  /** Fires an update notification to registered listeners.
+   * 
+   * @see SimEventListListener#notifyEventListUpdate
+   * 
+   */
+  protected final void fireUpdate ()
+  {
+    for (SimEventListListener.Fine l : this.fineListeners)
+      l.notifyEventListUpdate (this, this.lastUpdateTime);    
+    for (SimEventListListener l : this.listeners)
+      l.notifyEventListUpdate (this, this.lastUpdateTime);    
+  }
+  
+  /** Fires an empty-event-list notification to registered listeners.
+   * 
+   * @see SimEventListListener#notifyEventListEmpty
+   * 
+   */
+  protected final void fireEmpty ()
+  {
+    for (SimEventListListener.Fine l : this.fineListeners)
+      l.notifyEventListEmpty (this, this.lastUpdateTime);    
+    for (SimEventListListener l : this.listeners)
+      l.notifyEventListEmpty (this, this.lastUpdateTime);    
+  }
+  
+  /** Fires a next-event notification to registered listeners.
+   * 
+   * @see SimEventListListener.Fine#notifyNextEvent
+   * 
+   */
+  protected final void fireNextEvent ()
+  {
+    for (SimEventListListener.Fine l : this.fineListeners)
+      l.notifyNextEvent (this, this.lastUpdateTime);
   }
   
   private final Class<E> eventClass;
   
   /** Creates a new {@link SimEventList} with default {@link Comparator}.
    * 
-   * The base class for {@link SimEvent}s supported, viz., {@link E}, must feature a constructor with no arguments.
+   * The base class for {@link SimEvent}s supported (<code>E</code>) must feature a constructor with no arguments.
    * 
    * @param eventClass The base class {@link SimEvent}s supported.
    * 
@@ -229,7 +249,7 @@ public class SimEventList<E extends SimEvent>
 
   /** Creates a new {@link SimEventList} with given {@link Comparator}.
    * 
-   * The base class for {@link SimEvent}s supported, viz., {@link E}, must feature a constructor with no arguments.
+   * The base class for {@link SimEvent}s supported (<code>E</code>) must feature a constructor with no arguments.
    * 
    * @param comparator The comparator for {@link SimEvent}s.
    * @param eventClass The base class {@link SimEvent}s supported.
@@ -246,7 +266,7 @@ public class SimEventList<E extends SimEvent>
   }
 
   /** Checks the progress of time when processing a given event
-   * and triggers actions on update listeners when an update has taken place.
+   * and notifies listeners when an update has taken place.
    * 
    * An update is defined as the processing of the first event or an increase in the current time.
    * If needed, this method updates the current time.
@@ -254,8 +274,7 @@ public class SimEventList<E extends SimEvent>
    * @param e The event being processed.
    * 
    * @see #getTime
-   * @see #addUpdateSimEventAction
-   * @see SimEventAction
+   * @see #fireUpdate
    * 
    */ 
   protected void checkUpdate (E e)
@@ -264,10 +283,7 @@ public class SimEventList<E extends SimEvent>
     {
       this.lastUpdateTime = e.getTime ();
       this.firstUpdate = false;
-      for (SimEventListListener l : this.listeners)
-        l.notifyEventListUpdate (this, this.lastUpdateTime);
-      for (SimEventAction a : this.updateListeners)
-        a.action (e);
+      fireUpdate ();
     }
   }
 
@@ -312,8 +328,7 @@ public class SimEventList<E extends SimEvent>
       && (first ().getTime () < endTime || (inclusive && first ().getTime () == endTime))
       && ! Thread.interrupted ())
     {
-      for (SimEventListListener.Fine l : this.fineListeners)
-        l.notifyNextEvent (this, this.lastUpdateTime);
+      fireNextEvent ();
       final E e = pollFirst ();      
       // Updates this.lastUpdateTime.
       checkUpdate (e);
@@ -322,8 +337,7 @@ public class SimEventList<E extends SimEvent>
         a.action (e);
     }
     if (isEmpty ())
-      for (SimEventListListener l : this.listeners)
-        l.notifyEventListEmpty (this, this.lastUpdateTime);
+      fireEmpty ();
     this.running = false;
   }
   
@@ -353,8 +367,7 @@ public class SimEventList<E extends SimEvent>
         throw new IllegalStateException ();
       this.running = true;
     }
-    for (SimEventListListener.Fine l : this.fineListeners)
-      l.notifyNextEvent (this, this.lastUpdateTime);
+    fireNextEvent ();
     final E e = pollFirst ();      
     // Updates this.lastUpdateTime.
     checkUpdate (e);
@@ -362,8 +375,7 @@ public class SimEventList<E extends SimEvent>
     if (a != null)
       a.action (e);
     if (isEmpty ())
-      for (SimEventListListener l : this.listeners)
-        l.notifyEventListEmpty (this, this.lastUpdateTime);
+      fireEmpty ();
     this.running = false;
   }
   
@@ -396,7 +408,7 @@ public class SimEventList<E extends SimEvent>
    * <p>
    * This method reinserts the event (after setting the new time on it) into the event list.
    * If the event is not present in the list, this effects of this method are identical to those of
-   * {@link #schedule(double, E)}.
+   * {@link #schedule(double, SimEvent)}.
    * 
    * @param time The (new) schedule time for the event.
    * @param event The event to (re)schedule.

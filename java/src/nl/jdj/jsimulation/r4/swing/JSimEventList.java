@@ -12,8 +12,13 @@ import nl.jdj.jsimulation.r4.SimEvent;
 import nl.jdj.jsimulation.r4.SimEventList;
 import nl.jdj.jsimulation.r4.SimEventListListener;
 
-/**
+/** A Swing <code>JComponent</code> showing the contents of a {@link SimEventList}.
  *
+ * <p>
+ * The component updates itself by registering as a {@link SimEventListListener}(<code>.Fine</code>) to the event list.
+ * 
+ * @see SimEventList
+ * 
  */
 public class JSimEventList
 extends JComponent
@@ -80,7 +85,7 @@ implements SimEventListListener.Fine
 
   private final JTable table;
   
-  private TableModel tableModel = new AbstractTableModel ()
+  private final TableModel tableModel = new AbstractTableModel ()
   {
 
     @Override

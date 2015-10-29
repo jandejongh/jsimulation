@@ -16,6 +16,7 @@ public interface SimEventAction<T>
    * @param event The event.
    *
    * @throws IllegalArgumentException If <code>event</code> is <code>null</code>.
+   * 
    */
   public void action (SimEvent<T> event);
 

@@ -6,7 +6,7 @@ import java.util.Random;
  * 
  * A {@link SimEvent} maintains its own scheduled time on a {@link SimEventList},
  * has a name an an associated {@link SimEventAction}, and an optional user object.
- * The name and the user object are not changed by the {@link nl.jdj.jsimulation} packages, and may be <code>null</code>.
+ * The name and the user object are not changed by the <code>nl.jdj.jsimulation</code> packages, and may be <code>null</code>.
  * If two {@link SimEvent}s are scheduled on a {@link SimEventList} with identical times, their order of execution is undetermined
  * (in this implementation, their order of execution is random with equal probabilities).
  * In particular, implementations should not assume insertion order of execution for events with identical times.
@@ -24,7 +24,7 @@ public class SimEvent<T>
   /** Gets the name of this {@link SimEvent}.
    * 
    * The name may be <code>null</code>.
-   * It is not used by the {@link nl.jdj.jsimulation} package, except for logging purposes.
+   * It is not used by the <code>nl.jdj.jsimulation</code> package, except for logging purposes.
    * 
    * @return The name of the event (may be <code>null</code>).
    * 
@@ -37,7 +37,7 @@ public class SimEvent<T>
   /** Sets the name of this {@link SimEvent}.
    * 
    * The name may be <code>null</code>.
-   * It is not used by the {@link nl.jdj.jsimulation} package, except for logging purposes.
+   * It is not used by the <code>nl.jdj.jsimulation</code> package, except for logging purposes.
    * 
    * @param name The new name of the event (may be <code>null</code>).
    * 
@@ -47,6 +47,20 @@ public class SimEvent<T>
     this.name = name;
   }
 
+  /** Returns the registered name if non-<code>null</code>, else the super method return value.
+   * 
+   * @return The registered name if non-<code>null</code>, else the super method return value.
+   * 
+   */
+  @Override
+  public String toString ()
+  {
+    if (this.name != null)
+      return this.name;
+    else
+      return super.toString ();
+  }
+  
   private double time;
 
   /** Returns the time at which this {@link SimEvent} is (to be) scheduled on a {@link SimEventList}.
@@ -102,8 +116,8 @@ public class SimEvent<T>
 
   /** Returns the user object associated with this event.
    * 
-   * The user object need not be present (may be <code>null</code> and is never used or changed by the {@link nl.jdj.jsimulation}
-   * package.
+   * The user object need not be present (may be <code>null</code> and is never used or changed by the
+   * <code>nl.jdj.jsimulation}</code> package.
    * Also, multiple {@link SimEvent}s may share a single user object.
    * Note, however, that the user object (property) should not be changed when the {@link SimEvent} is scheduled on
    * a {@link SimEventList}.
@@ -118,8 +132,8 @@ public class SimEvent<T>
 
   /** Sets the user object associated with this event.
    * 
-   * The user object need not be present (may be <code>null</code> and is never used or changed by the {@link nl.jdj.jsimulation}
-   * package.
+   * The user object need not be present (may be <code>null</code> and is never used or changed
+   * by the <code>nl.jdj.jsimulation</code> package.
    * Also, multiple {@link SimEvent}s may share a single user object.
    * Note, however, that the user object (property) should not be changed when the {@link SimEvent} is scheduled on
    * a {@link SimEventList}.

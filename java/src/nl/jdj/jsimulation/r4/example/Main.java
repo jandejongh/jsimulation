@@ -5,7 +5,7 @@ import nl.jdj.jsimulation.r4.SimEventAction;
 import nl.jdj.jsimulation.r4.SimEventList;
 import nl.jdj.jsimulation.r4.SimTimer;
 
-/** Example code for {@link nl.jdj.jsimulation}.
+/** Example code for <code>nl.jdj.jsimulation</code>.
  * 
  */
 public final class Main
@@ -35,7 +35,8 @@ public final class Main
       @Override
       public void action (SimEvent<Object> event)
       {
-        System.out.println ("  -> Action 1 on " + event.getName () + ", user object: " + (int) event.getObject () + " @" + event.getTime () + ".");
+        System.out.println ("  -> Action 1 on " + event.getName () + ", user object: " + (int) event.getObject ()
+          + " @" + event.getTime () + ".");
       }
     };
     final SimEventAction<Object> a2 = new SimEventAction<Object> ()
@@ -43,7 +44,8 @@ public final class Main
       @Override
       public void action (SimEvent<Object> event)
       {
-        System.out.println ("  -> Action 2 on " + event.getName () + ", user object: " + (int) event.getObject () + " @" + event.getTime () + ".");
+        System.out.println ("  -> Action 2 on " + event.getName () + ", user object: " + (int) event.getObject ()
+          + " @" + event.getTime () + ".");
       }
     };
     System.out.println ("-> Creating and populating event list with events at one-second interval...");
