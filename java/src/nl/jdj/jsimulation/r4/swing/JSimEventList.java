@@ -6,6 +6,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import nl.jdj.jsimulation.r4.SimEvent;
@@ -160,6 +161,8 @@ implements SimEventListListener.Fine
     // setMaximumSize (new Dimension (600, 600));
     this.eventList = eventList;
     this.table = new JTable (this.tableModel);
+    this.table.setRowSelectionAllowed (false);
+    this.table.setColumnSelectionAllowed (false);
     setOpaque (true);
     setLayout (new BoxLayout (this, BoxLayout.LINE_AXIS));
     add (new JScrollPane (this.table));
