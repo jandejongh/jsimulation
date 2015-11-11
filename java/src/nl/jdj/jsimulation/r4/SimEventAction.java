@@ -8,10 +8,11 @@ package nl.jdj.jsimulation.r4;
  * @param <T> The type of the user object of the {@link SimEvent}.
  * 
  */
+@FunctionalInterface
 public interface SimEventAction<T>
 {
 
-  /** Invoke the action for supplied {@link SimEvent}.
+  /** Invokes the action for supplied {@link SimEvent}.
    *
    * @param event The event.
    *
