@@ -212,7 +212,17 @@ public class SimEvent<T>
     this ("No Name", time, object, eventAction);
   }
 
-  /** Creates a new {@link SimEvent} name \"No Name\", time at negative infinity and <code>null</code> object and action.
+  /** Creates a new {@link SimEvent} named \"No Name\", given time and <code>null</code> object and action.
+   * 
+   * @param time The time at which the event is to be scheduled on a {@link SimEventList}.
+   * 
+   */
+  public SimEvent (final double time)
+  {
+    this ("No Name", time, null, null);
+  }
+
+  /** Creates a new {@link SimEvent} named \"No Name\", time at negative infinity and <code>null</code> object and action.
    * 
    */
   public SimEvent ()
