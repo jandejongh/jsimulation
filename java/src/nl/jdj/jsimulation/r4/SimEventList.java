@@ -1,5 +1,6 @@
 package nl.jdj.jsimulation.r4;
 
+import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
@@ -232,6 +233,16 @@ public class SimEventList<E extends SimEvent>
   }
   
   private final Class<E> eventClass;
+  
+  /** Creates a new {@link SimEventList} for plain {@link SimEvent}s with default {@link Comparator}.
+   * 
+   * @see DefaultSimEventComparator
+   * 
+   */
+  public SimEventList ()
+  {
+    this ((Class<E>) SimEvent.class);
+  }
   
   /** Creates a new {@link SimEventList} with default {@link Comparator}.
    * 
@@ -603,6 +614,41 @@ public class SimEventList<E extends SimEvent>
   public final E scheduleNow (final SimEventAction action)
   {
     return scheduleNow (action, null);
+  }
+  
+  /** Prints a representation of this event list on {@link System#out}.
+   * 
+   */
+  public void print ()
+  {
+    print (null);
+  }
+  
+  /** Prints a representation of this event list on given stream.
+   * 
+   * @param stream The stream to which to print; if {@code null}, {@link System#out} is used.
+   * 
+   */
+  public void print (final PrintStream stream)
+  {
+    final PrintStream ps = ((stream == null) ? System.out : stream);
+    ps.println ("SimEventList " + this + ", time=" + getTime () + ":");
+    if (isEmpty ())
+      ps.println ("  EMPTY!");
+    else
+      for (final SimEvent event : this)
+      {
+        ps.println ("  t=" + event.getTime ()
+          + ", name=" + event.getName ()
+          + ", object=" + event.getObject ()
+          + ", action=" + event.getEventAction () + ".");
+      }
+  }
+  
+  @Override
+  public String toString ()
+  {
+    return getClass ().getName () + '@' + Integer.toHexString (hashCode ());
   }
   
 }
