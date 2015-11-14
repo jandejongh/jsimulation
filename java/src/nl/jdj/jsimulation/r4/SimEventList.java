@@ -508,7 +508,7 @@ public class SimEventList<E extends SimEvent>
   public final E schedule (final double time, final SimEventAction action, final String name)
   {
     if (time < getTime ())
-      throw new IllegalArgumentException ();
+      throw new IllegalArgumentException ("Schedule time is in the past: " + time + " < " + getTime () + "!");
     try
     {
       final E event = this.eventClass.newInstance ();
