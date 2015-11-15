@@ -1,10 +1,10 @@
 package nl.jdj.jsimulation.r5.example;
 
-import nl.jdj.jsimulation.r5.DefaultSimEvent;
-import nl.jdj.jsimulation.r5.SimEventAction;
-import nl.jdj.jsimulation.r5.DefaultSimEventList;
 import nl.jdj.jsimulation.r5.AbstractSimTimer;
+import nl.jdj.jsimulation.r5.DefaultSimEvent;
+import nl.jdj.jsimulation.r5.DefaultSimEventList;
 import nl.jdj.jsimulation.r5.SimEvent;
+import nl.jdj.jsimulation.r5.SimEventAction;
 import nl.jdj.jsimulation.r5.SimEventList;
 
 /** Example code for jsimulation.
