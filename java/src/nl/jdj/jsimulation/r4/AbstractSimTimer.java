@@ -27,14 +27,14 @@ package nl.jdj.jsimulation.r4;
  * An attempt to schedule an already scheduled timer will result in a {@link RuntimeException}.
  *
  */
-public abstract class SimTimer
+public abstract class AbstractSimTimer
 {
 
   public final String NAME;
 
   private final SimEvent EXPIRE_EVENT;
 
-  public SimTimer (String name)
+  public AbstractSimTimer (String name)
   {
     this.NAME = (name == null) ? "" : name;
     this.EXPIRE_EVENT = new SimEvent (this.NAME + "_expire", 0.0, null, this.EXPIRE_EVENT_ACTION);
@@ -48,8 +48,8 @@ public abstract class SimTimer
     @Override
     public void action (SimEvent event)
     {
-      SimTimer.this.eventList = null;
-      SimTimer.this.expireAction (event.getTime ());
+      AbstractSimTimer.this.eventList = null;
+      AbstractSimTimer.this.expireAction (event.getTime ());
     }
 
   };
@@ -76,7 +76,7 @@ public abstract class SimTimer
    *
    * The default implementation does nothing.
    * Note that this method is only invoked if the timer was actually
-   * scheduled on a {@link SimEventList} when {@link #cancel} was invoked.
+   * scheduled on a {@link EventList} when {@link #cancel} was invoked.
    *
    * @param time The current time when canceling.
    *

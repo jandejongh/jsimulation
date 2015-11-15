@@ -14,7 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import nl.jdj.jsimulation.r4.SimEvent;
+import nl.jdj.jsimulation.r4.DefaultSimEventList;
 import nl.jdj.jsimulation.r4.SimEventList;
 import nl.jdj.jsimulation.r4.SimEventListListener;
 import nl.jdj.jsimulation.r4.swing.JSimEventList;
@@ -42,8 +42,7 @@ public final class Main
    */
   public static void main (final String[] args)
   {
-    SwingUtilities.invokeLater (
-      new Runnable ()
+    SwingUtilities.invokeLater (new Runnable ()
       {
         
         private JFrame frame;
@@ -58,7 +57,7 @@ public final class Main
           final JPanel topPanel = new JPanel ();
           topPanel.setLayout (new BoxLayout (topPanel, BoxLayout.PAGE_AXIS));
           frame.getContentPane ().add (topPanel);
-          this.eventList = new SimEventList (SimEvent.class);
+          this.eventList = new DefaultSimEventList ();
           this.eventList.schedule (0.0, null, "First Event");
           this.eventList.schedule (5.0, null, "Second Event");
           this.eventList.schedule (1000.0, null, "Third Event");

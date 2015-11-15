@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package nl.jdj.jsimulation.r4;
 
 import org.junit.After;
@@ -13,14 +7,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author jan
- */
-public class SimEventListTest
+public class DefaultSimEventListTest
 {
   
-  public SimEventListTest ()
+  public DefaultSimEventListTest ()
   {
   }
   
@@ -45,13 +35,13 @@ public class SimEventListTest
   }
 
   /**
-   * Test of getTime method, of class SimEventList.
+   * Test of getTime method, of class DefaultSimEventList.
    */
   @Test
   public void testGetTime ()
   {
     System.out.println ("getTime");
-    SimEventList instance = new SimEventList (SimEvent.class);
+    SimEventList instance = new DefaultSimEventList (SimEvent.class);
     double expResult = Double.NEGATIVE_INFINITY;
     double result = instance.getTime ();
     assertEquals (expResult, result, 0.0);
@@ -66,13 +56,13 @@ public class SimEventListTest
   }
 
   /**
-   * Test of reset method, of class SimEventList.
+   * Test of reset method, of class DefaultSimEventList.
    */
   @Test
   public void testReset ()
   {
     System.out.println ("reset");
-    SimEventList instance = new SimEventList (SimEvent.class);
+    SimEventList instance = new DefaultSimEventList (SimEvent.class);
     SimEvent e1 = new SimEvent (15.8, null, null);
     instance.add (e1);
     SimEvent e2 = new SimEvent (10.0, null, null);
@@ -92,13 +82,13 @@ public class SimEventListTest
   }
 
   /**
-   * Test of checkUpdate method, of class SimEventList.
+   * Test of checkUpdate method, of class DefaultSimEventList.
    */
   @Test
   public void testCheckUpdate ()
   {
     System.out.println ("checkUpdate");
-    SimEventList instance = new SimEventList (SimEvent.class);
+    DefaultSimEventList instance = new DefaultSimEventList (SimEvent.class);
     SimEvent e = new SimEvent (15.8, null, null);
     instance.checkUpdate (e);
     double expResult = 15.8;
@@ -139,13 +129,13 @@ public class SimEventListTest
   private boolean action2Done = false;
   
   /**
-   * Test of run method, of class SimEventList.
+   * Test of run method, of class DefaultSimEventList.
    */
   @Test
   public void testRun ()
   {
     System.out.println ("run");
-    final SimEventList instance = new SimEventList (SimEvent.class);
+    final SimEventList instance = new DefaultSimEventList (SimEvent.class);
     this.action1Done = false;
     this.action2Done = false;
     SimEventAction action1 = new SimEventAction ()
@@ -153,12 +143,12 @@ public class SimEventListTest
       @Override
       public void action (SimEvent event)
       {
-        if (SimEventListTest.this.action1Done)
+        if (DefaultSimEventListTest.this.action1Done)
           fail ("Event (1) triggered more than once!");
         Object expResult = 15.8;
         Object result = instance.getTime ();
         assertEquals (expResult, result); 
-        SimEventListTest.this.action1Done = true;
+        DefaultSimEventListTest.this.action1Done = true;
       }
     };
     SimEvent e1 = new SimEvent (15.8, null, action1);
@@ -168,14 +158,14 @@ public class SimEventListTest
       @Override
       public void action (SimEvent event)
       {
-        if (SimEventListTest.this.action2Done)
+        if (DefaultSimEventListTest.this.action2Done)
           fail ("Event (2) triggered more than once!");
-        if (SimEventListTest.this.action2Done)
+        if (DefaultSimEventListTest.this.action2Done)
           fail ("Event 2 scheduled before 1!");
         Object expResult = 10.0;
         Object result = instance.getTime ();
         assertEquals (expResult, result); 
-        SimEventListTest.this.action2Done = true;
+        DefaultSimEventListTest.this.action2Done = true;
       }
     };
     SimEvent e2 = new SimEvent (10.0, null, action2);
@@ -251,13 +241,13 @@ public class SimEventListTest
   }
   
   /**
-   * Test of various schedule/reschedule methods, of class SimEventList.
+   * Test of various schedule/reschedule methods, of class DefaultSimEventList.
    */
   @Test
   public void testSchedule ()
   {
     System.out.println ("schedule");
-    final SimEventList el = new SimEventList (SimEvent.class);
+    final SimEventList el = new DefaultSimEventList ();
     final TestSimEventAction a1 = new TestSimEventAction ();
     final TestSimEventAction a2 = new TestSimEventAction ();
     el.schedule (15.0, a1);

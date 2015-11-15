@@ -2,8 +2,9 @@ package nl.jdj.jsimulation.r4.example;
 
 import nl.jdj.jsimulation.r4.SimEvent;
 import nl.jdj.jsimulation.r4.SimEventAction;
+import nl.jdj.jsimulation.r4.DefaultSimEventList;
+import nl.jdj.jsimulation.r4.AbstractSimTimer;
 import nl.jdj.jsimulation.r4.SimEventList;
-import nl.jdj.jsimulation.r4.SimTimer;
 
 /** Example code for <code>nl.jdj.jsimulation</code>.
  * 
@@ -28,7 +29,7 @@ public final class Main
    */
   public static void main (String[] args)
   {
-    System.out.println ("=== EXAMPLE PROGRAM FOR nl.jdj.jsimulation.r4 PACKAGE ===");
+    System.out.println ("=== EXAMPLE PROGRAM FOR jsimulation PACKAGE ===");
     System.out.println ("-> Creating actions...");
     final SimEventAction<Object> a1 = new SimEventAction<Object> ()
     {
@@ -49,7 +50,7 @@ public final class Main
       }
     };
     System.out.println ("-> Creating and populating event list with events at one-second interval...");
-    final SimEventList<SimEvent> el = new SimEventList<> (SimEvent.class);
+    final SimEventList el = new DefaultSimEventList ();
     for (int n = 0; n < 15; n++)
       el.add (new SimEvent<> ((double) n, n, (n % 2 == 0) ? a1 : a2));
     System.out.println ("-> Executing event list...");
@@ -83,7 +84,7 @@ public final class Main
     System.out.println ("-> Resetting event list to zero time...");
     el.reset (0.0);
     System.out.println ("-> Populating event list with 16-seconds timer...");
-    new SimTimer ("Timer")
+    new AbstractSimTimer ("Timer")
     {
       @Override
       public void expireAction (double time)
