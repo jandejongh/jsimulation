@@ -385,7 +385,7 @@ public interface SimEventList<E extends SimEvent>
   default void print (final PrintStream stream)
   {
     final PrintStream ps = ((stream == null) ? System.out : stream);
-    ps.println ("SimEventList " + this + ", time=" + getTime () + ":");
+    ps.println ("SimEventList " + this + ", class=" + getClass ().getSimpleName () + ", time=" + getTime () + ":");
     if (isEmpty ())
       ps.println ("  EMPTY!");
     else
