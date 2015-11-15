@@ -1,13 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package nl.jdj.jsimulation.r5;
 
-import nl.jdj.jsimulation.r5.SimEventAction;
-import nl.jdj.jsimulation.r5.SimEvent;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -17,12 +9,11 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author jan
  */
-public class SimEventTest
+public class DefaultSimEventTest
 {
   
-  public SimEventTest ()
+  public DefaultSimEventTest ()
   {
   }
   
@@ -47,27 +38,27 @@ public class SimEventTest
   }
 
   /**
-   * Test of getName method, of class SimEvent.
+   * Test of getName method, of class DefaultSimEvent.
    */
   @Test
   public void testGetName ()
   {
     System.out.println ("getName");
-    SimEvent instance = new SimEvent ("My First Event", 12.0, null, null);
+    SimEvent instance = new DefaultSimEvent ("My First Event", 12.0, null, null);
     String expResult = "My First Event";
     String result = instance.getName ();
     assertEquals (expResult, result);
   }
 
   /**
-   * Test of setName method, of class SimEvent.
+   * Test of setName method, of class DefaultSimEvent.
    */
   @Test
   public void testSetName ()
   {
     System.out.println ("setName");
     String name = "";
-    SimEvent instance = new SimEvent ("My First Event", 12.0, null, null);
+    SimEvent instance = new DefaultSimEvent ("My First Event", 12.0, null, null);
     String expResult = "My First Event";
     String result = instance.getName ();
     assertEquals (expResult, result);
@@ -78,30 +69,30 @@ public class SimEventTest
   }
 
   /**
-   * Test of getTime method, of class SimEvent.
+   * Test of getTime method, of class DefaultSimEvent.
    */
   @Test
   public void testGetTime ()
   {
     System.out.println ("getTime");
-    SimEvent instance = new SimEvent ("My First Event", 13.7, null, null);
+    SimEvent instance = new DefaultSimEvent ("My First Event", 13.7, null, null);
     double expResult = 13.7;
     double result = instance.getTime ();
     assertEquals (expResult, result, 0.0);
-    instance = new SimEvent ("My Second Event", -14.78, null, null);
+    instance = new DefaultSimEvent ("My Second Event", -14.78, null, null);
     expResult = -14.78;
     result = instance.getTime ();
     assertEquals (expResult, result, 0.0);    
   }
 
   /**
-   * Test of setTime method, of class SimEvent.
+   * Test of setTime method, of class DefaultSimEvent.
    */
   @Test
   public void testSetTime ()
   {
     System.out.println ("setTime");
-    SimEvent instance = new SimEvent ("My First Event", 13.7, null, null);
+    SimEvent instance = new DefaultSimEvent ("My First Event", 13.7, null, null);
     double expResult = 13.7;
     double result = instance.getTime ();
     assertEquals (expResult, result, 0.0);
@@ -112,28 +103,28 @@ public class SimEventTest
   }
 
   /**
-   * Test of getObject method, of class SimEvent.
+   * Test of getObject method, of class DefaultSimEvent.
    */
   @Test
   public void testGetObject ()
   {
     System.out.println ("getObject");
     Object object = (double) 23;
-    SimEvent instance = new SimEvent ("My First Event", 13.7, object, null);
+    SimEvent instance = new DefaultSimEvent ("My First Event", 13.7, object, null);
     Object expResult = object;
     Object result = instance.getObject ();
     assertEquals (expResult, result);
   }
 
   /**
-   * Test of setObject method, of class instance.add (e1);SimEvent.
+   * Test of setObject method, of class instance.add (e1);DefaultSimEvent.
    */
   @Test
   public void testSetObject ()
   {
     System.out.println ("setObject");
     Object object = (double) 23;
-    SimEvent instance = new SimEvent ("My First Event", 13.7, object, null);
+    SimEvent instance = new DefaultSimEvent ("My First Event", 13.7, object, null);
     Object expResult = object;
     Object result = instance.getObject ();
     assertEquals (expResult, result);
@@ -145,7 +136,7 @@ public class SimEventTest
   }
   
   /**
-   * Test of getEventAction method, of class SimEvent.
+   * Test of getEventAction method, of class DefaultSimEvent.
    */
   @Test
   public void testGetEventAction ()
@@ -159,14 +150,14 @@ public class SimEventTest
         fail ("The action should not be executed.");
       }   
     };
-    SimEvent instance = new SimEvent ("My First Event", 13.7, null, action);
+    SimEvent instance = new DefaultSimEvent ("My First Event", 13.7, null, action);
     SimEventAction expResult = action;
     SimEventAction result = instance.getEventAction ();
     assertEquals (expResult, result);
   }
 
   /**
-   * Test of setEventAction method, of class SimEvent.
+   * Test of setEventAction method, of class DefaultSimEvent.
    */
   @Test
   public void testSetEventAction ()
@@ -180,7 +171,7 @@ public class SimEventTest
         fail ("The action (1) should not be executed.");
       }   
     };
-    SimEvent instance = new SimEvent ("My First Event", 13.7, null, action1);
+    SimEvent instance = new DefaultSimEvent ("My First Event", 13.7, null, action1);
     SimEventAction expResult = action1;
     SimEventAction result = instance.getEventAction ();
     assertEquals (expResult, result);

@@ -19,12 +19,12 @@ public class DefaultSimEventList_ROEL<E extends SimEvent>
 extends AbstractSimEventList<E>
 {
 
-  /** Creates a new {@link DefaultSimEventList_ROEL} for plain {@link SimEvent}s.
+  /**  Creates a new {@link DefaultSimEventList_ROEL} for {@link DefaultSimEvent}s.
    * 
    */
   public DefaultSimEventList_ROEL ()
   {
-    this ((Class<E>) SimEvent.class);
+    this ((Class<E>) DefaultSimEvent.class);
   }
   
   /** Creates a new {@link DefaultSimEventList_ROEL}.

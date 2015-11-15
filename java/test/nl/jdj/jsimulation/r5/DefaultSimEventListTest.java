@@ -41,14 +41,14 @@ public class DefaultSimEventListTest
   public void testGetTime ()
   {
     System.out.println ("getTime");
-    SimEventList instance = new DefaultSimEventList (SimEvent.class);
+    SimEventList instance = new DefaultSimEventList (DefaultSimEvent.class);
     double expResult = Double.NEGATIVE_INFINITY;
     double result = instance.getTime ();
     assertEquals (expResult, result, 0.0);
-    SimEvent e1 = new SimEvent (15.8, null, null);
+    SimEvent e1 = new DefaultSimEvent (15.8, null, null);
     e1.setName ("e1");
     instance.add (e1);
-    SimEvent e2 = new SimEvent (10.0, null, null);
+    SimEvent e2 = new DefaultSimEvent (10.0, null, null);
     e1.setName ("e2");
     instance.add (e2);
     instance.run ();
@@ -64,10 +64,10 @@ public class DefaultSimEventListTest
   public void testReset ()
   {
     System.out.println ("reset");
-    SimEventList instance = new DefaultSimEventList (SimEvent.class);
-    SimEvent e1 = new SimEvent (15.8, null, null);
+    SimEventList instance = new DefaultSimEventList (DefaultSimEvent.class);
+    SimEvent e1 = new DefaultSimEvent (15.8, null, null);
     instance.add (e1);
-    SimEvent e2 = new SimEvent (10.0, null, null);
+    SimEvent e2 = new DefaultSimEvent (10.0, null, null);
     instance.add (e2);
     instance.run ();
     double expResult = 15.8;
@@ -90,13 +90,13 @@ public class DefaultSimEventListTest
   public void testCheckUpdate ()
   {
     System.out.println ("checkUpdate");
-    DefaultSimEventList instance = new DefaultSimEventList (SimEvent.class);
-    SimEvent e = new SimEvent (15.8, null, null);
+    DefaultSimEventList instance = new DefaultSimEventList (DefaultSimEvent.class);
+    SimEvent e = new DefaultSimEvent (15.8, null, null);
     instance.checkUpdate (e);
     double expResult = 15.8;
     double result = instance.getTime ();
     assertEquals (expResult, result, 0.0); 
-    e = new SimEvent (13.2, null, null); // Before current time; should be ignored.
+    e = new DefaultSimEvent (13.2, null, null); // Before current time; should be ignored.
     try
     {
       instance.checkUpdate (e);
@@ -108,7 +108,7 @@ public class DefaultSimEventListTest
     expResult = 15.8;
     result = instance.getTime ();
     assertEquals (expResult, result, 0.0); 
-    e = new SimEvent (42.0, null, null);
+    e = new DefaultSimEvent (42.0, null, null);
     instance.checkUpdate (e);
     expResult = 42.0;
     result = instance.getTime ();
@@ -137,7 +137,7 @@ public class DefaultSimEventListTest
   public void testRun ()
   {
     System.out.println ("run");
-    final SimEventList instance = new DefaultSimEventList (SimEvent.class);
+    final SimEventList instance = new DefaultSimEventList (DefaultSimEvent.class);
     this.action1Done = false;
     this.action2Done = false;
     SimEventAction action1 = new SimEventAction ()
@@ -153,7 +153,7 @@ public class DefaultSimEventListTest
         DefaultSimEventListTest.this.action1Done = true;
       }
     };
-    SimEvent e1 = new SimEvent (15.8, null, action1);
+    SimEvent e1 = new DefaultSimEvent (15.8, null, action1);
     instance.add (e1);
     SimEventAction action2 = new SimEventAction ()
     {
@@ -170,7 +170,7 @@ public class DefaultSimEventListTest
         DefaultSimEventListTest.this.action2Done = true;
       }
     };
-    SimEvent e2 = new SimEvent (10.0, null, action2);
+    SimEvent e2 = new DefaultSimEvent (10.0, null, action2);
     instance.add (e2);
     instance.runUntil (10, false, false);
     assert ! instance.isEmpty ();
@@ -215,7 +215,7 @@ public class DefaultSimEventListTest
   }
   
   private class ReschedulingSimEvent
-  extends SimEvent
+  extends DefaultSimEvent
   {
     private final SimEventList eventList;
     private int count = 0;

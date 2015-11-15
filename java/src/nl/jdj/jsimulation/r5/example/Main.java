@@ -1,9 +1,10 @@
 package nl.jdj.jsimulation.r5.example;
 
-import nl.jdj.jsimulation.r5.SimEvent;
+import nl.jdj.jsimulation.r5.DefaultSimEvent;
 import nl.jdj.jsimulation.r5.SimEventAction;
 import nl.jdj.jsimulation.r5.DefaultSimEventList;
 import nl.jdj.jsimulation.r5.AbstractSimTimer;
+import nl.jdj.jsimulation.r5.SimEvent;
 import nl.jdj.jsimulation.r5.SimEventList;
 
 /** Example code for jsimulation.
@@ -52,14 +53,14 @@ public final class Main
     System.out.println ("-> Creating and populating event list with events at one-second interval...");
     final SimEventList el = new DefaultSimEventList ();
     for (int n = 0; n < 15; n++)
-      el.add (new SimEvent<> ((double) n, n, (n % 2 == 0) ? a1 : a2));
+      el.add (new DefaultSimEvent<> ((double) n, n, (n % 2 == 0) ? a1 : a2));
     System.out.println ("-> Executing event list...");
     el.run ();
     System.out.println ("-> Resetting event list...");
     el.reset ();
     System.out.println ("-> Populating event list with events all scheduled at t = 1.0; these will be executed in random order...");
     for (int n = 0; n < 15; n++)
-      el.add (new SimEvent<> (1.0, n, (n % 2 == 0) ? a1 : a2));
+      el.add (new DefaultSimEvent<> (1.0, n, (n % 2 == 0) ? a1 : a2));
     System.out.println ("-> Executing event list...");
     el.run ();
     final SimEventAction<Object> a3 = new SimEventAction<Object> ()
@@ -78,7 +79,7 @@ public final class Main
     System.out.println ("-> Resetting event list...");
     el.reset ();
     System.out.println ("-> Populating event list with auto-rescheduling event...");
-    el.add (new SimEvent<> (1.0, null, a3));
+    el.add (new DefaultSimEvent<> (1.0, null, a3));
     System.out.println ("-> Executing event list...");
     el.run ();
     System.out.println ("-> Resetting event list to zero time...");

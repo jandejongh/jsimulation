@@ -3,7 +3,7 @@ package nl.jdj.jsimulation.r5;
 import java.io.PrintStream;
 import java.util.SortedSet;
 
-/** An event list for {@link SimEvent}s.
+/**  An event list for {@link SimEvent}s.
  * 
  * Since a {@link SortedSet} is being used for bookkeeping of the events, the
  * events themselves must be totally ordered.
@@ -72,7 +72,7 @@ public interface SimEventList<E extends SimEvent>
   extends SortedSet<E>, Runnable
 {
 
-  /** Returns the {@link Class} of allowable {@link SimEvent}s in this event list.
+  /**  Returns the {@link Class} of allowable {@link SimEvent}s in this event list.
    * 
    * @return The {@link Class} of allowable {@link SimEvent}s in this event list.
    * 

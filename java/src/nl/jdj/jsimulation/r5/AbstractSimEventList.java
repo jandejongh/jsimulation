@@ -24,7 +24,7 @@ extends TreeSet<E>
 implements SimEventList<E>
 {
 
-  /** Creates a new {@link SimEventList} for plain {@link SimEvent}s with default {@link Comparator}.
+  /**  Creates a new {@link SimEventList} for plain {@link SimEvent}s with default {@link Comparator}.
    * 
    * @see DefaultSimEventComparator
    * 

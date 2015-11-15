@@ -16,12 +16,12 @@ public final class DefaultSimEventList_IOEL<E extends SimEvent>
 extends AbstractSimEventList<E>
 {
 
-  /** Creates a new {@link DefaultSimEventList_IOEL} for plain {@link SimEvent}s.
+  /**  Creates a new {@link DefaultSimEventList_IOEL} for {@link DefaultSimEvent}s.
    * 
    */
   public DefaultSimEventList_IOEL ()
   {
-    this ((Class<E>) SimEvent.class);
+    this ((Class<E>) DefaultSimEvent.class);
   }
   
   /** Creates a new {@link DefaultSimEventList_IOEL}.
