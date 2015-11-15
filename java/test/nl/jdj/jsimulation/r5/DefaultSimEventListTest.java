@@ -1,9 +1,5 @@
 package nl.jdj.jsimulation.r5;
 
-import nl.jdj.jsimulation.r5.SimEventList;
-import nl.jdj.jsimulation.r5.DefaultSimEventList;
-import nl.jdj.jsimulation.r5.SimEventAction;
-import nl.jdj.jsimulation.r5.SimEvent;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -50,8 +46,10 @@ public class DefaultSimEventListTest
     double result = instance.getTime ();
     assertEquals (expResult, result, 0.0);
     SimEvent e1 = new SimEvent (15.8, null, null);
+    e1.setName ("e1");
     instance.add (e1);
     SimEvent e2 = new SimEvent (10.0, null, null);
+    e1.setName ("e2");
     instance.add (e2);
     instance.run ();
     expResult = 15.8;

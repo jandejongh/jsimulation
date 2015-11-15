@@ -112,18 +112,6 @@ public class SimEventTest
   }
 
   /**
-   * Test of setDeconflicterSeed method, of class SimEvent.
-   */
-  @Test
-  public void testSetDeconflicterSeed ()
-  {
-    System.out.println ("setDeconflicterSeed");
-    long seed = 0L;
-    SimEvent.setDeconflicterSeed (seed);
-    // XXX Cannot really test this...
-  }
-
-  /**
    * Test of getObject method, of class SimEvent.
    */
   @Test

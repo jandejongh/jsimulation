@@ -1,7 +1,5 @@
 package nl.jdj.jsimulation.r5;
 
-import java.util.Random;
-
 /** A (timed) event to be used in a {@link SimEventList}.
  * 
  * A {@link SimEvent} maintains its own scheduled time on a {@link SimEventList},
@@ -84,8 +82,6 @@ public class SimEvent<T>
   public final void setTime (final double time)
   {
     this.time = time;
-    // XXX Why is this necessary??
-    this.deconflict = SimEvent.deconflicter.nextLong ();
   }
 
   /** The value used for solving event-list collisions.
@@ -96,22 +92,18 @@ public class SimEvent<T>
    * @see DefaultSimEventComparator
    * 
    */
-  protected Long deconflict;
+  private long simEventListDeconflictValue = Long.MIN_VALUE;
 
-  private static Random deconflicter = new Random ();
-
-  /** Sets the seed for the pseudo-random sequence for de-conflicting event-list collisions.
-   * 
-   * An event-list collision occurs when two {@link SimEvent}s are scheduled at the same time in a {@link SimEventList}.
-   * 
-   * @param seed The new seed.
-   * 
-   */
-  public static void setDeconflicterSeed (final long seed)
+  public final Long getSimEventListDeconflictValue ()
   {
-    SimEvent.deconflicter.setSeed (seed);
+    return this.simEventListDeconflictValue;
   }
-
+  
+  public final void setSimEventListDeconflictValue (final long simEventListDeconflictValue)
+  {
+    this.simEventListDeconflictValue = simEventListDeconflictValue;
+  }
+  
   private T object;
 
   /** Returns the user object associated with this event.
@@ -192,7 +184,7 @@ public class SimEvent<T>
   {
     this.name = name;
     this.time = time;
-    this.deconflict = SimEvent.deconflicter.nextLong ();
+    this.simEventListDeconflictValue = Long.MIN_VALUE;
     this.object = object;
     this.eventAction = eventAction;
   }
