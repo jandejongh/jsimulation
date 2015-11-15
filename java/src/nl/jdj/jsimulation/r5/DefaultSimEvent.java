@@ -141,6 +141,19 @@ public class DefaultSimEvent<T> implements SimEvent<T>
     this ("No Name", time, object, eventAction);
   }
 
+  /** Creates a new {@link DefaultSimEvent} named \"No Name\", given time and action and <code>null</code> object.
+   * 
+   * @param time The time at which the event is to be scheduled on a {@link SimEventList}.
+   * @param eventAction The associated event action (may be <code>null</code>).
+   * 
+   */
+  public DefaultSimEvent
+    (final double time,
+    final SimEventAction eventAction)
+  {
+    this ("No Name", time, null, eventAction);
+  }
+
   /** Creates a new {@link DefaultSimEvent} named \"No Name\", given time and <code>null</code> object and action.
    * 
    * @param time The time at which the event is to be scheduled on a {@link SimEventList}.
