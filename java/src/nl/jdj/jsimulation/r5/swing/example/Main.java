@@ -1,4 +1,4 @@
-package nl.jdj.jsimulation.r4.swing.example;
+package nl.jdj.jsimulation.r5.swing.example;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,10 +14,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import nl.jdj.jsimulation.r4.DefaultSimEventList;
-import nl.jdj.jsimulation.r4.SimEventList;
-import nl.jdj.jsimulation.r4.SimEventListListener;
-import nl.jdj.jsimulation.r4.swing.JSimEventList;
+import nl.jdj.jsimulation.r5.DefaultSimEventList;
+import nl.jdj.jsimulation.r5.SimEventList;
+import nl.jdj.jsimulation.r5.SimEventListListener;
+import nl.jdj.jsimulation.r5.swing.JSimEventList;
 
 /** Example program showing the use of {@link JSimEventList} and basic interactions with a {@link SimEventList}.
  *

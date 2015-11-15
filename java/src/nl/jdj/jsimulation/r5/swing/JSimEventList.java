@@ -1,4 +1,4 @@
-package nl.jdj.jsimulation.r4.swing;
+package nl.jdj.jsimulation.r5.swing;
 
 import java.awt.Dimension;
 import java.util.Iterator;
@@ -8,9 +8,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
-import nl.jdj.jsimulation.r4.SimEvent;
-import nl.jdj.jsimulation.r4.SimEventList;
-import nl.jdj.jsimulation.r4.SimEventListListener;
+import nl.jdj.jsimulation.r5.SimEvent;
+import nl.jdj.jsimulation.r5.SimEventList;
+import nl.jdj.jsimulation.r5.SimEventListListener;
 
 /** A Swing <code>JComponent</code> showing the contents of a {@link SimEventList}.
  *
