@@ -111,7 +111,6 @@ public interface SimEventList<E extends SimEvent>
    * @throws IllegalStateException If the event list is currently running.
    * 
    * @see #run
-   * @see #fireReset
    * 
    */
   void reset (double time);

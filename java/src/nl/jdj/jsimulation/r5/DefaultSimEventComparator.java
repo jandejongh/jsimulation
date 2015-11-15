@@ -9,7 +9,7 @@ import java.util.Comparator;
  * 
  * @param <E> The type of {@link SimEvent}s supported.
  * 
- * @see SimEvent#deconflict
+ * @see SimEvent#getSimEventListDeconflictValue
  * 
  */
 public class DefaultSimEventComparator<E extends SimEvent> implements Comparator<E>

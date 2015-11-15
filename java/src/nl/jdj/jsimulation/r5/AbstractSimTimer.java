@@ -76,7 +76,7 @@ public abstract class AbstractSimTimer
    *
    * The default implementation does nothing.
    * Note that this method is only invoked if the timer was actually
-   * scheduled on a {@link EventList} when {@link #cancel} was invoked.
+   * scheduled on a {@link SimEventList} when {@link #cancel} was invoked.
    *
    * @param time The current time when canceling.
    *
