@@ -2,7 +2,7 @@ package nl.jdj.jsimulation.r5;
 
 import java.util.Comparator;
 
-/**  A default {@link Comparator} on {@link SimEvent}s.
+/** A default {@link Comparator} on {@link SimEvent}s.
  * 
  * This comparator extends the partial ordering of {@link SimEvent}s using their time property
  * to a total ordering using, in case of a tie in the event times, the de-conflict field of the event.

@@ -24,19 +24,27 @@ extends TreeSet<E>
 implements SimEventList<E>
 {
 
-  /**  Creates a new {@link SimEventList} for plain {@link SimEvent}s with default {@link Comparator}.
+  /** Creates a new {@link SimEventList} for plain {@link SimEvent}s with default {@link Comparator}.
+   * 
+   * <p>
+   * This method instantiates a {@link DefaultSimEventFactory}
+   * and registers it through {@link #setSimEventFactory}.
    * 
    * @see DefaultSimEventComparator
+   * @see DefaultSimEventFactory
    * 
    */
   public AbstractSimEventList ()
   {
     this ((Class<E>) SimEvent.class);
+    setSimEventFactory ((SimEventFactory <E>) new DefaultSimEventFactory ());
   }
   
   /** Creates a new {@link SimEventList} with default {@link Comparator}.
    * 
-   * The base class for {@link SimEvent}s supported (<code>E</code>) must feature a constructor with no arguments.
+   * Unless an event-factory is registered,
+   * the base class for {@link SimEvent}s supported (<code>E</code>) must feature a constructor with no arguments,
+   * see {@link #setSimEventFactory}.
    * 
    * @param eventClass The base class {@link SimEvent}s supported.
    * 
@@ -50,7 +58,9 @@ implements SimEventList<E>
 
   /** Creates a new {@link SimEventList} with given {@link Comparator}.
    * 
-   * The base class for {@link SimEvent}s supported (<code>E</code>) must feature a constructor with no arguments.
+   * Unless an event-factory is registered,
+   * the base class for {@link SimEvent}s supported (<code>E</code>) must feature a constructor with no arguments,
+   * see {@link #setSimEventFactory}.
    * 
    * @param comparator The comparator for {@link SimEvent}s.
    * @param eventClass The base class {@link SimEvent}s supported.
@@ -95,6 +105,20 @@ implements SimEventList<E>
   public final Class<E> getSimEventClass ()
   {
     return this.eventClass;
+  }
+  
+  private SimEventFactory<? extends E> eventFactory = null;
+
+  @Override
+  public final SimEventFactory<? extends E> getSimEventFactory ()
+  {
+    return this.eventFactory;
+  }
+
+  @Override
+  public final void setSimEventFactory (SimEventFactory<? extends E> eventFactory)
+  {
+    this.eventFactory = eventFactory;
   }
   
   private double lastUpdateTime = Double.NEGATIVE_INFINITY;

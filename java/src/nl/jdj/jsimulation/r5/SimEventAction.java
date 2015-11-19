@@ -1,6 +1,6 @@
 package nl.jdj.jsimulation.r5;
 
-/**  An action provider for {@link SimEvent}s.
+/** An action provider for {@link SimEvent}s.
  * 
  * In the interface main method, {@link #action}, a {@link SimEvent} is passed.
  * As a result, a single {@link SimEventAction} interface can be used for multiple {@link SimEvent}s.
@@ -12,7 +12,7 @@ package nl.jdj.jsimulation.r5;
 public interface SimEventAction<T>
 {
 
-  /**  Invokes the action for supplied {@link SimEvent}.
+  /** Invokes the action for supplied {@link SimEvent}.
    *
    * @param event The event.
    *

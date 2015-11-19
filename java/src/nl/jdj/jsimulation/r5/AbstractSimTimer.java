@@ -39,6 +39,11 @@ public abstract class AbstractSimTimer
     this.NAME = (name == null) ? "" : name;
     this.EXPIRE_EVENT = new DefaultSimEvent (this.NAME + "_expire", 0.0, null, this.EXPIRE_EVENT_ACTION);
   }
+  
+  public AbstractSimTimer ()
+  {
+    this (null);
+  }
 
   private SimEventList eventList = null;
 

@@ -3,7 +3,7 @@ package nl.jdj.jsimulation.r5;
 import java.io.PrintStream;
 import java.util.SortedSet;
 
-/**  An event list for {@link SimEvent}s.
+/** An event list for {@link SimEvent}s.
  * 
  * Since a {@link SortedSet} is being used for bookkeeping of the events, the
  * events themselves must be totally ordered.
@@ -72,7 +72,7 @@ public interface SimEventList<E extends SimEvent>
   extends SortedSet<E>, Runnable
 {
 
-  /**  Returns the {@link Class} of allowable {@link SimEvent}s in this event list.
+  /** Returns the {@link Class} of allowable {@link SimEvent}s in this event list.
    * 
    * @return The {@link Class} of allowable {@link SimEvent}s in this event list.
    * 
@@ -175,6 +175,20 @@ public interface SimEventList<E extends SimEvent>
    */
   void runSingleStep ();
   
+  /** Gets the factory for {@link SimEvent}s created by this {@link SimEventList}.
+   * 
+   * @return The event factory; may be {@code null}.
+   * 
+   */
+  SimEventFactory<? extends E> getSimEventFactory ();
+  
+  /** Sets the factory for {@link SimEvent}s created by this {@link SimEventList}.
+   * 
+   * @param eventFactory The event factory; may be {@code null} to stop using it.
+   * 
+   */
+  void setSimEventFactory (SimEventFactory<? extends E> eventFactory);
+  
   /** Schedules an event on this list, taking the schedule time from the event itself.
    * 
    * @param event The event to schedule.
@@ -244,9 +258,18 @@ public interface SimEventList<E extends SimEvent>
   
   /** Schedules an action at given time.
    * 
+   * <p>
    * Note that if the <code>action</code> argument is <code>null</code>,
    * a {@link SimEvent} is still created and scheduled
    * with <code>null</code> {@link SimEventAction}.
+   * 
+   * <p>
+   * This method (and all others instantiating {@link SimEvent}s)
+   * uses a non-{@code null} {@link SimEventFactory}
+   * if available through {@link #getSimEventFactory}.
+   * Otherwise,
+   * it attempts to find and invoke a null constructor
+   * on {@link #getSimEventClass} (which fails if that is an interface).
    * 
    * @param time   The schedule time for the action.
    * @param action The action to schedule, may be <code>null</code>.
@@ -264,7 +287,11 @@ public interface SimEventList<E extends SimEvent>
       throw new IllegalArgumentException ("Schedule time is in the past: " + time + " < " + getTime () + "!");
     try
     {
-      final E event = getSimEventClass ().newInstance ();
+      final E event;
+      if (getSimEventFactory () != null)
+        event = getSimEventFactory ().newInstance (name, time, action);
+      else
+        event = getSimEventClass ().newInstance ();
       event.setTime (time);
       event.setEventAction (action);
       event.setObject (null);
@@ -275,7 +302,7 @@ public interface SimEventList<E extends SimEvent>
     }
     catch (InstantiationException | IllegalAccessException e)
     {
-      throw new IllegalStateException (e);
+      throw new IllegalStateException ("Cannot instantiate " + getSimEventClass ().getSimpleName () + "!", e);
     }
   }
   
