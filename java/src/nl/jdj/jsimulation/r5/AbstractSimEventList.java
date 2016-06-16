@@ -131,6 +131,20 @@ implements SimEventList<E>
     return this.lastUpdateTime;
   }
 
+  private double defaultResetTime = Double.NEGATIVE_INFINITY;
+  
+  @Override
+  public final double getDefaultResetTime ()
+  {
+    return this.defaultResetTime;
+  }
+
+  @Override
+  public final void setDefaultResetTime (final double defaultResetTime)
+  {
+    this.defaultResetTime = defaultResetTime;
+  }
+
   @Override
   public void reset (double time)
   {

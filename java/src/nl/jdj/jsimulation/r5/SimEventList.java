@@ -5,6 +5,7 @@ import java.util.SortedSet;
 
 /** An event list for {@link SimEvent}s.
  * 
+ * <p>
  * Since a {@link SortedSet} is being used for bookkeeping of the events, the
  * events themselves must be totally ordered.
  * 
@@ -22,7 +23,8 @@ import java.util.SortedSet;
  * 
  * <p>
  * An event-list instance can be reused by resetting the time, which is done through {@link #reset}, after which
- * the list is empty and time is {@link Double#NEGATIVE_INFINITY} again.
+ * the list is empty and time is {@link Double#NEGATIVE_INFINITY} again,
+ * or to another value should the user have used {@link setDefaultResetTime}.
  * It is also possible to reset to a specific time (still clearing the event list, though).
  * Obviously, resetting should not be done while processing the event list (e.g., this should
  * probably not be done from within an event action), as this will result in the list throwing an exception (noting time is no
@@ -88,23 +90,61 @@ public interface SimEventList<E extends SimEvent>
 
   /** Resets the event list.
    * 
-   * Removes all events, and sets time to negative infinity.
+   * <p>
+   * Removes all events, and sets time to negative infinity,
+   * or to the value last set through {@link #getDefaultResetTime}.
    * An exception is thrown if the event list is currently running.
    * 
    * @throws IllegalStateException If the event list is currently running.
    * 
    * @see #run
+   * @see #getDefaultResetTime
+   * @see #setDefaultResetTime
    * 
    */
   default void reset ()
   {
-    reset (Double.NEGATIVE_INFINITY);
+    reset (getDefaultResetTime ());
   }
+
+  /** Gets the default reset time, the time on the event list after it is reset (without explicit time argument).
+   * 
+   * <p>
+   * The default value (i.e., the default reset time if not set explicitly through {@link #setDefaultResetTime})
+   * is negative infinity.
+   * 
+   * @return The default reset time (default minus infinity).
+   * 
+   * @see #reset()
+   * @see #reset(double)
+   * 
+   */
+  double getDefaultResetTime ();
+  
+  /** Sets the default reset time, the time on the event list after it is reset (without explicit time argument).
+   * 
+   * <p>
+   * The value supplied (obviously) survives resets;
+   * the last value set through this method is only
+   * used by {@link #reset()}.
+   * 
+   * @param defaultResetTime The new default reset time (minus and positive infinity are allowed).
+   * 
+   * @see #reset()
+   * @see #reset(double)
+   * 
+   */
+  void setDefaultResetTime (double defaultResetTime);
   
   /** Resets the event list to a specific time.
    * 
+   * <p>
    * Removes all events, and sets time to the given value.
    * An exception is thrown if the event list is currently running.
+   * 
+   * <p>
+   * This method ignores the default reset time, as given by {@link #getDefaultResetTime},
+   * but does <i>not</i> change that value.
    * 
    * @param time The new time of the event list.
    * 
