@@ -1,5 +1,6 @@
 package nl.jdj.jsimulation.r5;
 
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -82,6 +83,69 @@ public class DefaultSimEventListTest
     result = instance.getTime ();
     assertEquals (expResult, result, 0.0);
     assert instance.isEmpty ();
+  }
+
+  /**
+   * Test of default reset-time, of class DefaultSimEventList.
+   */
+  @Test
+  public void testDefaultResetTime ()
+  {
+    System.out.println ("defaultResetTime");
+    SimEventList instance = new DefaultSimEventList (DefaultSimEvent.class);
+    double expResult = Double.NEGATIVE_INFINITY;
+    double result = instance.getDefaultResetTime ();
+    assertEquals (expResult, result, 0.0);
+    instance.setDefaultResetTime (5.0);
+    instance.reset (-25.0);
+    SimEvent e1 = new DefaultSimEvent (15.8, null, null);
+    instance.add (e1);
+    SimEvent e2 = new DefaultSimEvent (10.0, null, null);
+    instance.add (e2);
+    expResult = 5.0;
+    result = instance.getDefaultResetTime ();
+    assertEquals (expResult, result, 0.0);
+    expResult = -25.0;
+    result = instance.getTime ();
+    assertEquals (expResult, result, 0.0);
+    instance.run ();
+    expResult = 15.8;
+    result = instance.getTime ();
+    assertEquals (expResult, result, 0.0);
+    expResult = 5.0;
+    result = instance.getDefaultResetTime ();
+    assertEquals (expResult, result, 0.0);
+    instance.reset ();
+    expResult = 5.0;
+    result = instance.getTime ();
+    assertEquals (expResult, result, 0.0);
+    expResult = 5.0;
+    result = instance.getDefaultResetTime ();
+    assertEquals (expResult, result, 0.0);
+    instance.add (e1);
+    instance.run ();
+    expResult = 5.0;
+    result = instance.getDefaultResetTime ();
+    assertEquals (expResult, result, 0.0);
+    instance.setDefaultResetTime (-45.0);
+    expResult = 15.8;
+    result = instance.getTime ();
+    assertEquals (expResult, result, 0.0);
+    instance.reset ();
+    expResult = -45.0;
+    result = instance.getTime ();
+    assertEquals (expResult, result, 0.0);
+    expResult = -45.0;
+    result = instance.getDefaultResetTime ();
+    assertEquals (expResult, result, 0.0);
+    instance.reset (-22.0);
+    expResult = -22.0;
+    result = instance.getTime ();
+    assertEquals (expResult, result, 0.0);
+    instance.reset ();
+    expResult = -45.0;
+    result = instance.getTime ();
+    assertEquals (expResult, result, 0.0);
   }
 
   /**
