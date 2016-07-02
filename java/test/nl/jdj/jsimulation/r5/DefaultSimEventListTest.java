@@ -1,6 +1,5 @@
 package nl.jdj.jsimulation.r5;
 
-import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
