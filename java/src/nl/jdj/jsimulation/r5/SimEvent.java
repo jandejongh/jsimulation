@@ -48,7 +48,7 @@ public interface SimEvent<T>
    * @return The value used for "de-conflicting" simultaneous events on a {@link SimEventList}.
    * 
    */
-  Long getSimEventListDeconflictValue ();
+  long getSimEventListDeconflictValue ();
 
   /** Sets the value used for "de-conflicting" simultaneous events on a {@link SimEventList}.
    * 

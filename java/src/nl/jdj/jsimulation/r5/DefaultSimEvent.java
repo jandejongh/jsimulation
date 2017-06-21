@@ -66,7 +66,7 @@ public class DefaultSimEvent<T> implements SimEvent<T>
   private long simEventListDeconflictValue = Long.MIN_VALUE;
 
   @Override
-  public final Long getSimEventListDeconflictValue ()
+  public final long getSimEventListDeconflictValue ()
   {
     return this.simEventListDeconflictValue;
   }

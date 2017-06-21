@@ -20,9 +20,8 @@ public class DefaultSimEventComparator<E extends SimEvent> implements Comparator
   {
     int c = Double.compare (e1.getTime (), e2.getTime ());
     if (c == 0)
-    {
-      c = e1.getSimEventListDeconflictValue ().compareTo (e2.getSimEventListDeconflictValue ());
-    }
+      c = Long.compare (e1.getSimEventListDeconflictValue (), e2.getSimEventListDeconflictValue ());
+      // c = e1.getSimEventListDeconflictValue ().compareTo (e2.getSimEventListDeconflictValue ());
     if ((e1 == e2 && c != 0) || (e1 != e2 && c == 0))
       throw new RuntimeException ("Error attempting to order events.");
     return c;
