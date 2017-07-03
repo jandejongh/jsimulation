@@ -24,7 +24,7 @@ import java.util.SortedSet;
  * <p>
  * An event-list instance can be reused by resetting the time, which is done through {@link #reset}, after which
  * the list is empty and time is {@link Double#NEGATIVE_INFINITY} again,
- * or to another value should the user have used {@link setDefaultResetTime}.
+ * or to another value should the user have used {@link #setDefaultResetTime}.
  * It is also possible to reset to a specific time (still clearing the event list, though).
  * Obviously, resetting should not be done while processing the event list (e.g., this should
  * probably not be done from within an event action), as this will result in the list throwing an exception (noting time is no
