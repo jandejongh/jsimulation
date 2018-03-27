@@ -8,7 +8,7 @@
     <version>5.0.0</version>
     <packaging>jar</packaging>
 
-    <name>nl.jdj.jsimulation</name>
+    <name>jsimulation</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
