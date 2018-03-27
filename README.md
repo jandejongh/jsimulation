@@ -7,4 +7,4 @@ Actually part of the jqueues repository (https://github.com/jandejongh/jqueues) 
 
 Both jsimulation and jqueues have extensive javadoc comments; a 'Guided Tour' is on its way.
 
-License: Apache.
+License: Apache v2.0.
