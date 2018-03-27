@@ -5,6 +5,14 @@ A small collection of Java packages specifying and implementing discrete-event s
 
 Actually part of the jqueues repository (https://github.com/jandejongh/jqueues) yet split off so queues can be connected to (alternative) event-list implementations.
 
+### Dependencies
+
+None.
+
+### Documentation
+
 Both jsimulation and jqueues have extensive javadoc comments; a 'Guided Tour' is on its way.
 
-License: Apache v2.0.
+### License
+
+Apache v2.0.
