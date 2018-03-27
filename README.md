@@ -1,0 +1,10 @@
+# jsimulation
+Discrete-Event Simulation in Java
+
+A small collection of Java packages specifying and implementing discrete-event simulation, including support for events and event list, scheduling and event-list processing.
+
+Actually part of the jqueues repository (https://github.com/jandejongh/jqueues) yet split off so queues can be connected to (alternative) event-list implementations.
+
+Both jsimulation and jqueues have extensive javadoc comments; a 'Guided Tour' is on its way.
+
+License: Apache.
