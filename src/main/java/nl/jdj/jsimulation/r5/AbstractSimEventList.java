@@ -5,25 +5,50 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.logging.Logger;
 
 /** A {@link TreeSet}-based implementation of {@link SimEventList}.
  * 
  * <p>
  * Note that in the default implementation, events that have the same time, are processed in random order!
- * This event list does not maintain insertion order!
  * 
  * <p>
  * The implementation is not thread-safe.
  * An event list is really meant to be processed and operated upon by a single thread only.
  * 
+ * <p>
+ * <b>Last javadoc Review:</b> Jan de Jongh, TNO, 20180402, r5.1.0.
+ * 
  * @param <E> The type of {@link SimEvent}s supported.
+ * 
+ * @see SimEventList
+ * @see DefaultSimEventList
+ * @see DefaultSimEventList_ROEL
+ * @see DefaultSimEventList_IOEL
  * 
  */
 public abstract class AbstractSimEventList<E extends SimEvent>
 extends TreeSet<E>
 implements SimEventList<E>
 {
-
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // LOGGER
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+  private static final Logger LOG = Logger.getLogger (AbstractSimEventList.class.getName ());
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // SERIALIZATION
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  private static final long serialVersionUID = 3944696628174847328L;
+  
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
   // USE ARRAY OPTIMIZATION [COMPILE-TIME SWITCH]
@@ -35,59 +60,187 @@ implements SimEventList<E>
    * 
    */
   protected final static boolean USE_ARRAY_OPTIMIZATION = true;
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // CONSTRUCTORS / CLONING / FACTORIES
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  /** Creates a new {@link SimEventList} for plain {@link SimEvent}s with default {@link Comparator}.
+  /** Creates a new (abstract) event list (main constructor).
    * 
    * <p>
-   * This method instantiates a {@link DefaultSimEventFactory}
-   * and registers it through {@link #setSimEventFactory}.
-   * 
-   * @see DefaultSimEventComparator
-   * @see DefaultSimEventFactory
-   * 
-   */
-  public AbstractSimEventList ()
-  {
-    this ((Class<E>) SimEvent.class);
-    setSimEventFactory ((SimEventFactory <E>) new DefaultSimEventFactory ());
-  }
-  
-  /** Creates a new {@link SimEventList} with default {@link Comparator}.
-   * 
-   * Unless an event-factory is registered,
-   * the base class for {@link SimEvent}s supported (<code>E</code>) must feature a constructor with no arguments,
+   * Unless an event-factory is registered after construction,
+   * the base class for {@link SimEvent}s supported (<code>E</code>)
+   * must feature a constructor with no arguments,
    * see {@link #setSimEventFactory}.
    * 
-   * @param eventClass The base class {@link SimEvent}s supported.
-   * 
-   * @see DefaultSimEventComparator
-   * 
-   */
-  public AbstractSimEventList (final Class<E> eventClass)
-  {
-    this (new DefaultSimEventComparator (), eventClass);
-  }
-
-  /** Creates a new {@link SimEventList} with given {@link Comparator}.
-   * 
-   * Unless an event-factory is registered,
-   * the base class for {@link SimEvent}s supported (<code>E</code>) must feature a constructor with no arguments,
-   * see {@link #setSimEventFactory}.
-   * 
-   * @param comparator The comparator for {@link SimEvent}s.
-   * @param eventClass The base class {@link SimEvent}s supported.
+   * @param comparator       The comparator for {@link SimEvent}s.
+   * @param defaultResetTime The default reset time.
+   * @param eventClass       The base class {@link SimEvent}s supported.
    * 
    * @throws IllegalArgumentException If <code>eventClass</code> is <code>null</code>.
    * 
+   * @see TreeSet#TreeSet(java.util.Comparator)
+   * 
    */
-  public AbstractSimEventList (final Comparator comparator, final Class<E> eventClass)
+  protected AbstractSimEventList (final Comparator comparator, final double defaultResetTime, final Class<E> eventClass)
   {
     super (comparator);
+    this.defaultResetTime = defaultResetTime;
     if (eventClass == null)
       throw new IllegalArgumentException ();
     this.eventClass = eventClass;
+    resetFromContructor ();
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // toString
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  private Function<SimEventList, String> toStringFunction = null;
+  
+  /** Gets the function that generates the string for {@link #toString}.
+   * 
+   * <p>
+   * Note that this class turns {@link #toString} final.
+   * 
+   * <p>
+   * If this method returns {@code null}, which is the default after construction,
+   * the {@link #toString} method returns a compile-time default string.
+   * 
+   * @return The function that generates the string for {@link #toString}.
+   * 
+   * @see #toString
+   * @see #setToStringFunction
+   * 
+   */
+  public final Function<SimEventList, String> getToStringFunction ()
+  {
+    return this.toStringFunction;
+  }
+  
+  /** Sets the function that generates the string for {@link #toString}.
+   * 
+   * <p>
+   * Note that this class turns {@link #toString} final.
+   *
+   * <p>
+   * If the function is set to {@code null}, the {@link #toString} method returns a compile-time default string.
+   * 
+   * @param toStringFunction The function returning the appropriate print string when {@code this} is supplied as argument.
+   * 
+   * @see #toString
+   * @see #getToStringFunction
+   * 
+   */
+  public final void setToStringFunction (final Function<SimEventList, String> toStringFunction)
+  {
+    this.toStringFunction = toStringFunction;
+  }
+  
+  /** Returns a string representation of this event list (final, but customizable).
+   * 
+   * <p>
+   * Since we intend to create one of more {@code final} sub-classes,
+   * but still want end-users to be able to customize the printed output,
+   * this method applies the {@link #getToStringFunction} if present.
+   * Otherwise, it returns a compile-time default string.
+   * 
+   * @return A string representation of this event list.
+   * 
+   * @see #getToStringFunction
+   * @see #setToStringFunction
+   * 
+   */
+  @Override
+  public final String toString ()
+  {
+    if (this.toStringFunction != null)
+      return "" + this.toStringFunction.apply (this);
+    else
+      // return getClass ().getName () + '@' + Integer.toHexString (hashCode ());
+      return "EventList[t=" + this.lastUpdateTime + "]";
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // DEFAULT RESET TIME
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  private double defaultResetTime = Double.NEGATIVE_INFINITY;
+  
+  @Override
+  public final double getDefaultResetTime ()
+  {
+    return this.defaultResetTime;
+  }
+
+  @Override
+  public final void setDefaultResetTime (final double defaultResetTime)
+  {
+    this.defaultResetTime = defaultResetTime;
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // [LAST-UPDATE] TIME
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  private double lastUpdateTime = Double.NEGATIVE_INFINITY;
+  
+  private boolean firstUpdate = true;
+  
+  @Override
+  public final double getTime ()
+  {
+    return this.lastUpdateTime;
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // EVENT CLASS
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  private final Class<E> eventClass;
+
+  @Override
+  public final Class<E> getSimEventClass ()
+  {
+    return this.eventClass;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // EVENT FACTORY
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  private SimEventFactory<? extends E> eventFactory = null;
+
+  @Override
+  public final SimEventFactory<? extends E> getSimEventFactory ()
+  {
+    return this.eventFactory;
+  }
+
+  @Override
+  public final void setSimEventFactory (SimEventFactory<? extends E> eventFactory)
+  {
+    this.eventFactory = eventFactory;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // ADD [ALL] (TreeSet)
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
   /** Overridden in order (ensure) the setting the <i>de-conflict</i> value on the event added.
    * 
    * <p>
@@ -115,52 +268,12 @@ implements SimEventList<E>
     return changed;
   }
 
-  private final Class<E> eventClass;
-
-  @Override
-  public final Class<E> getSimEventClass ()
-  {
-    return this.eventClass;
-  }
-  
-  private SimEventFactory<? extends E> eventFactory = null;
-
-  @Override
-  public final SimEventFactory<? extends E> getSimEventFactory ()
-  {
-    return this.eventFactory;
-  }
-
-  @Override
-  public final void setSimEventFactory (SimEventFactory<? extends E> eventFactory)
-  {
-    this.eventFactory = eventFactory;
-  }
-  
-  private double lastUpdateTime = Double.NEGATIVE_INFINITY;
-  
-  private boolean firstUpdate = true;
-  
-  @Override
-  public final double getTime ()
-  {
-    return this.lastUpdateTime;
-  }
-
-  private double defaultResetTime = Double.NEGATIVE_INFINITY;
-  
-  @Override
-  public final double getDefaultResetTime ()
-  {
-    return this.defaultResetTime;
-  }
-
-  @Override
-  public final void setDefaultResetTime (final double defaultResetTime)
-  {
-    this.defaultResetTime = defaultResetTime;
-  }
-
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // RESET
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
   @Override
   public void reset (double time)
   {
@@ -175,6 +288,159 @@ implements SimEventList<E>
     fireReset ();
   }
   
+  /** Reset method called from the constructor.
+   * 
+   * <p>
+   * Should match {@link #reset(double)} with the exceptions that
+   * we do not check whether we are running or not (we assume not),
+   * we do not have to clear the (super) set,
+   * and we do not notify listeners.
+   * 
+   */
+  private void resetFromContructor ()
+  {
+    this.lastUpdateTime = this.defaultResetTime;
+    this.firstUpdate = true;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // UPDATE
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+  /** Checks the progress of time and notifies listeners when an update has taken place.
+   * 
+   * An update is defined as the processing of the first event or an increase in the current time.
+   * If needed, this method updates the current time.
+   * 
+   * @param newTime The new time.
+   * 
+   * @throws IllegalArgumentException If this is not the first update (after construction or after a reset)
+   *                                  and the new time is strictly smaller than the current time.
+   * @see #getTime
+   * @see #fireUpdate
+   * 
+   */ 
+  protected final void checkUpdate (final double newTime)
+  {
+    if ((! this.firstUpdate) && newTime < this.lastUpdateTime)
+      throw new IllegalArgumentException ();
+    if (this.firstUpdate || newTime > this.lastUpdateTime)
+    {
+      this.lastUpdateTime = newTime;
+      this.firstUpdate = false;
+      fireUpdate ();
+    }
+  }
+
+  /** Checks the progress of time when processing a given event
+   * and notifies listeners when an update has taken place.
+   * 
+   * An update is defined as the processing of the first event or an increase in the current time.
+   * If needed, this method updates the current time.
+   * 
+   * @param e The event being processed.
+   * 
+   * @throws IllegalArgumentException If the event is <code>null</code> or if this is not the first update
+   *                                  (after construction or after a reset)
+   *                                  and the new time on the event is strictly smaller than the current time.
+   * 
+   * @see #getTime
+   * @see #fireUpdate
+   * 
+   */ 
+  protected final void checkUpdate (final E e)
+  {
+    if (e == null)
+      throw new IllegalArgumentException ();
+    checkUpdate (e.getTime ());
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // RUN [UNTIL]
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  private volatile boolean running = false;
+  
+  /** Overridden to make the default method final.
+   * 
+   * @see SimEventList#run
+   * 
+   */
+  @Override
+  public final void run ()
+  {
+    SimEventList.super.run ();
+  }
+  
+  @Override
+  public final void runUntil (final double endTime, final boolean inclusive, final boolean setTimeToEndTime)
+  {
+    synchronized (this)
+    {
+      if (this.running)
+        throw new IllegalStateException ();
+      this.running = true;
+    }
+    if (endTime < getTime ())
+    {
+      this.running = false;
+      throw new IllegalArgumentException ();
+    }
+    while ((! isEmpty ())
+      && (first ().getTime () < endTime || (inclusive && first ().getTime () == endTime))
+      && ! Thread.interrupted ())
+    {
+      fireNextEvent ();
+      final E e = pollFirst ();      
+      // Updates this.lastUpdateTime.
+      checkUpdate (e);
+      final SimEventAction a = e.getEventAction ();
+      if (a != null)
+        a.action (e);
+    }
+    if (inclusive && setTimeToEndTime && getTime () < endTime)
+      checkUpdate (endTime);
+    if (isEmpty ())
+      fireEmpty ();
+    this.running = false;
+  }
+  
+  /** Runs a single (the first) event from the event list ("single-stepping").
+   * 
+   */
+  @Override
+  public final void runSingleStep ()
+  {
+    synchronized (this)
+    {
+      if (isEmpty ())
+        return;
+      if (this.running)
+        throw new IllegalStateException ();
+      this.running = true;
+    }
+    fireNextEvent ();
+    final E e = pollFirst ();      
+    // Updates this.lastUpdateTime.
+    checkUpdate (e);
+    final SimEventAction a = e.getEventAction ();
+    if (a != null)
+      a.action (e);
+    if (isEmpty ())
+      fireEmpty ();
+    this.running = false;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // LISTENERS
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   /** The reset listeners to this event list.
    * 
    */
@@ -257,6 +523,12 @@ implements SimEventList<E>
     }
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // LISTENER NOTIFICATIONS
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   /** Fires a reset notification to registered listeners.
    * 
    * @see SimEventListResetListener#notifyEventListReset
@@ -347,119 +619,10 @@ implements SimEventList<E>
     }
   }
   
-  /** Checks the progress of time and notifies listeners when an update has taken place.
-   * 
-   * An update is defined as the processing of the first event or an increase in the current time.
-   * If needed, this method updates the current time.
-   * 
-   * @param newTime The new time.
-   * 
-   * @throws IllegalArgumentException If this is not the first update (after construction or after a reset)
-   *                                  and the new time is strictly smaller than the current time.
-   * @see #getTime
-   * @see #fireUpdate
-   * 
-   */ 
-  protected final void checkUpdate (final double newTime)
-  {
-    if ((! this.firstUpdate) && newTime < this.lastUpdateTime)
-      throw new IllegalArgumentException ();
-    if (this.firstUpdate || newTime > this.lastUpdateTime)
-    {
-      this.lastUpdateTime = newTime;
-      this.firstUpdate = false;
-      fireUpdate ();
-    }
-  }
-
-  /** Checks the progress of time when processing a given event
-   * and notifies listeners when an update has taken place.
-   * 
-   * An update is defined as the processing of the first event or an increase in the current time.
-   * If needed, this method updates the current time.
-   * 
-   * @param e The event being processed.
-   * 
-   * @throws IllegalArgumentException If the event is <code>null</code> or if this is not the first update
-   *                                  (after construction or after a reset)
-   *                                  and the new time on the event is strictly smaller than the current time.
-   * 
-   * @see #getTime
-   * @see #fireUpdate
-   * 
-   */ 
-  protected final void checkUpdate (final E e)
-  {
-    if (e == null)
-      throw new IllegalArgumentException ();
-    checkUpdate (e.getTime ());
-  }
-
-  private volatile boolean running = false;
-  
-  @Override
-  public final void runUntil (final double endTime, final boolean inclusive, final boolean setTimeToEndTime)
-  {
-    synchronized (this)
-    {
-      if (this.running)
-        throw new IllegalStateException ();
-      this.running = true;
-    }
-    if (endTime < getTime ())
-    {
-      this.running = false;
-      throw new IllegalArgumentException ();
-    }
-    while ((! isEmpty ())
-      && (first ().getTime () < endTime || (inclusive && first ().getTime () == endTime))
-      && ! Thread.interrupted ())
-    {
-      fireNextEvent ();
-      final E e = pollFirst ();      
-      // Updates this.lastUpdateTime.
-      checkUpdate (e);
-      final SimEventAction a = e.getEventAction ();
-      if (a != null)
-        a.action (e);
-    }
-    if (inclusive && setTimeToEndTime && getTime () < endTime)
-      checkUpdate (endTime);
-    if (isEmpty ())
-      fireEmpty ();
-    this.running = false;
-  }
-  
-  /** Runs a single (the first) event from the event list ("single-stepping").
-   * 
-   */
-  @Override
-  public final void runSingleStep ()
-  {
-    synchronized (this)
-    {
-      if (isEmpty ())
-        return;
-      if (this.running)
-        throw new IllegalStateException ();
-      this.running = true;
-    }
-    fireNextEvent ();
-    final E e = pollFirst ();      
-    // Updates this.lastUpdateTime.
-    checkUpdate (e);
-    final SimEventAction a = e.getEventAction ();
-    if (a != null)
-      a.action (e);
-    if (isEmpty ())
-      fireEmpty ();
-    this.running = false;
-  }
-  
-  @Override
-  public String toString ()
-  {
-    return getClass ().getName () + '@' + Integer.toHexString (hashCode ());
-  }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // END OF FILE
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 }
