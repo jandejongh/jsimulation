@@ -10,22 +10,32 @@ import java.util.SortedSet;
  * events themselves must be totally ordered.
  * 
  * <p>
- * During its lifetime, an event list always has a notion of "current time", upon creation the time is set to
- * {@link Double#NEGATIVE_INFINITY}. The time is only updated as a result of processing the event list (e.g, in {@link #run},
+ * During its life, an event list always has a notion of "current time", see {@link #getTime}.
+ * Upon creation of the event list,
+ * the time is set to the so-called <i>default reset time</i>,
+ * see {@link #getDefaultResetTime}.
+ * The latter should default to {@link Double#NEGATIVE_INFINITY},
+ * but can be set through {@link #setDefaultResetTime}.
+ * In addition, implementations are strongly encouraged to provide constructors
+ * capable of setting the default reset time at creation time of the event list.
+ *
+ * <p>
+ * The time is only updated as a result of running the event list (e.g, in {@link #run}),
  * during which time is non-decreasing.
  * 
  * <p>
  * The process of running an event list is simply to repeatedly remove the first element of the underlying {@link SortedSet},
- * until the set is empty. This means you can for instance schedule new events from within the context of execution of
- * an event. However, <i>all</i> scheduled events this way must <i>not</i> be in the past.
+ * until the set is empty (or until another termination criterion is met before that).
+ * This means you can for instance schedule new events from within the context of execution of
+ * an event. However, <i>all</i> events scheduled this way must <i>not</i> be in the past.
  * This is rigorously checked for! If the event list discovers the insertion of new {@link SimEvent}s in the past,
  * it will throw an exception!
  * 
  * <p>
- * An event-list instance can be reused by resetting the time, which is done through {@link #reset}, after which
- * the list is empty and time is {@link Double#NEGATIVE_INFINITY} again,
- * or to another value should the user have used {@link #setDefaultResetTime}.
- * It is also possible to reset to a specific time (still clearing the event list, though).
+ * An event-list instance can be reused by resetting it, which is done through {@link #reset},
+ * after which the list is empty and time is {@link #getDefaultResetTime}.
+ * It is also possible to reset to a specific time (still clearing the event list, though)
+ * through {@link #reset(double)}.
  * Obviously, resetting should not be done while processing the event list (e.g., this should
  * probably not be done from within an event action), as this will result in the list throwing an exception (noting time is no
  * longer non-decreasing).
@@ -40,29 +50,41 @@ import java.util.SortedSet;
  * Note that events that have the same time, may not be processed in insertion order!
  * It is up to the implementation whether to specify whether it guarantees insertion order
  * or some other criterion.
+ * However, between events scheduled at the same time,
+ * the <i>order</i> of execution itself is fixed as long as these events are present (and are not <i>rescheduled</i>).
+ * This implies that upon insertion of an event having the same time as an event already present,
+ * their relative order is determined immediately (yet, this <i>may not be</i> insertion order).
  * 
  * <p>
  * While running, the event-list maintains the notion of updates, being "jumps in time".
  * So, as long as the list processes events with equal times, it does not fire such an update.
  * The concept of updates is very useful for statistics, in particular, for integration/averaging, since these
  * operations require non-trivial time steps for updates.
- * Note that irrespective of its time, the first event processed during a run always fires an update.
+ * Note that irrespective of its time, the first event processed after creation of the event list or
+ * after a reset always fires an update.
  * 
  * <p>
- * A {@link SimEventList} supports various notification mechanisms to registered listeners,
+ * A {@link SimEventList} supports various notification mechanisms to registered <i>listeners</i>.
+ * When and with what detail listeners are notified of changes to the event list depends on the actual listener <i>type</i>,
  * see {@link SimEventListResetListener}, {@link SimEventListListener} and {@link SimEventListListener.Fine}.
  * 
  * <p>
  * An event list is really meant to be processed and operated upon by a single thread only.
  * 
  * <p>
- * As of r4, a {@link SimEventList} is capable of generating suitable {@link SimEvent}s itself,
- * for instance to schedule user-provided {@link SimEventAction}s at a specific time.
- * This allowed the inclusion of several convenience methods for scheduling in r4.
- * This requires the availability of some user-provided factory for {@link SimEvent}s in r4,
- * which is implemented as a {@link Class} parameter in the constructor;
- * the <code>Class</code> giving access to a suitable (parameter-less) constructor for internally-generated
- * {@link SimEvent}s.
+ * A {@link SimEventList} must be capable of generating suitable {@link SimEvent}s itself,
+ * for instance for scheduling user-provided {@link SimEventAction}s at a specific time.
+ * The preferred way of achieving this is through setting a <i>factory</i> method,
+ * see {@link #getSimEventFactory} and {@link #setSimEventFactory}.
+ * Note that the factory may be absent,
+ * because we do not want to burden our users with its mandatory registration.
+ * When the event factory is absent,
+ * the {@link SimEvent} {@code class} (as provided through the {@code <E>} type parameter
+ * and its runtime companion {@link #getSimEventClass})
+ * <i>must</i> support a parameterless constructor.
+ * 
+ * <p>
+ * <b>Last javadoc Review:</b> Jan de Jongh, TNO, 20180402, r5.1.0.
  * 
  * @param <E> The type of {@link SimEvent}s supported.
  * 
@@ -74,39 +96,47 @@ public interface SimEventList<E extends SimEvent>
   extends SortedSet<E>, Runnable
 {
 
-  /** Returns the {@link Class} of allowable {@link SimEvent}s in this event list.
-   * 
-   * @return The {@link Class} of allowable {@link SimEvent}s in this event list.
-   * 
-   */
-  Class<E> getSimEventClass ();
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // NAME / toString / PRINT
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  /** Returns the current time during processing of the event list.
-   * 
-   * @return The current time.
+  /** Prints a representation of this event list on {@link System#out}.
    * 
    */
-  double getTime ();
-
-  /** Resets the event list.
-   * 
-   * <p>
-   * Removes all events, and sets time to negative infinity,
-   * or to the value last set through {@link #getDefaultResetTime}.
-   * An exception is thrown if the event list is currently running.
-   * 
-   * @throws IllegalStateException If the event list is currently running.
-   * 
-   * @see #run
-   * @see #getDefaultResetTime
-   * @see #setDefaultResetTime
-   * 
-   */
-  default void reset ()
+  default void print ()
   {
-    reset (getDefaultResetTime ());
+    print (System.out);
   }
-
+  
+  /** Prints a representation of this event list on given stream.
+   * 
+   * @param stream The stream to which to print; if {@code null}, {@link System#out} is used.
+   * 
+   */
+  default void print (final PrintStream stream)
+  {
+    final PrintStream ps = ((stream == null) ? System.out : stream);
+    ps.println ("SimEventList " + this + ", class=" + getClass ().getSimpleName () + ", time=" + getTime () + ":");
+    if (isEmpty ())
+      ps.println ("  EMPTY!");
+    else
+      for (final SimEvent event : this)
+      {
+        ps.println ("  t=" + event.getTime ()
+          + ", name=" + event.getName ()
+          + ", object=" + event.getObject ()
+          + ", action=" + event.getEventAction () + ".");
+      }
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // DEFAULT RESET TIME
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   /** Gets the default reset time, the time on the event list after it is reset (without explicit time argument).
    * 
    * <p>
@@ -128,6 +158,10 @@ public interface SimEventList<E extends SimEvent>
    * the last value set through this method is only
    * used by {@link #reset()}.
    * 
+   * <p>
+   * This method can be called at any time; the default reset time is only used
+   * while actually performing a reset.
+   * 
    * @param defaultResetTime The new default reset time (minus and positive infinity are allowed).
    * 
    * @see #reset()
@@ -136,6 +170,58 @@ public interface SimEventList<E extends SimEvent>
    */
   void setDefaultResetTime (double defaultResetTime);
   
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // [LAST-UPDATE] TIME
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  /** Returns the current time during processing of the event list.
+   * 
+   * @return The current time.
+   * 
+   */
+  double getTime ();
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // EVENT CLASS
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  /** Returns the {@link Class} of allowable {@link SimEvent}s in this event list.
+   * 
+   * @return The {@link Class} of allowable {@link SimEvent}s in this event list.
+   * 
+   */
+  Class<E> getSimEventClass ();
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // EVENT FACTORY
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  /** Gets the factory for {@link SimEvent}s created by this {@link SimEventList}.
+   * 
+   * @return The event factory; may be {@code null}.
+   * 
+   */
+  SimEventFactory<? extends E> getSimEventFactory ();
+  
+  /** Sets the factory for {@link SimEvent}s created by this {@link SimEventList}.
+   * 
+   * @param eventFactory The event factory; may be {@code null} to stop using it.
+   * 
+   */
+  void setSimEventFactory (SimEventFactory<? extends E> eventFactory);
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // RESET
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
   /** Resets the event list to a specific time.
    * 
    * <p>
@@ -155,22 +241,33 @@ public interface SimEventList<E extends SimEvent>
    */
   void reset (double time);
   
-  /** Adds a listener to this event list.
+  /** Resets the event list.
    * 
-   * @param l The listener to be added, ignored if <code>null</code>.
+   * <p>
+   * Removes all events, and sets time to {@link #getDefaultResetTime}.
+   * An exception is thrown if the event list is currently running.
+   * 
+   * @throws IllegalStateException If the event list is currently running.
+   * 
+   * @see #run
+   * @see #getDefaultResetTime
+   * @see #setDefaultResetTime
    * 
    */
-  void addListener (SimEventListResetListener l);
-  
-  /** Removes a listener from this event list.
-   * 
-   * @param l The listener to be removed, ignored if <code>null</code> or not present.
-   * 
-   */
-  void removeListener (SimEventListResetListener l);
+  default void reset ()
+  {
+    reset (getDefaultResetTime ());
+  }
 
-  /** Run the event list until it is empty, interrupted, or until a specific point in time has been reached.
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // RUN [UNTIL]
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /** Runs the event list until it is empty, interrupted, or until a specific point in time has been reached.
    * 
+   * <p>
    * After returning from this method, it can be invoked later, but the end time passed must not decrease in this sequence.
    * See also {@link #reset}.
    * 
@@ -194,7 +291,7 @@ public interface SimEventList<E extends SimEvent>
    */
   void runUntil (final double endTime, final boolean inclusive, final boolean setTimeToEndTime);
   
-  /** Run the event list until it is empty (or until interrupted).
+  /** Runs the event list until it is empty (or until interrupted).
    * 
    * <p>
    * This method leaves the time to that of the last event processed.
@@ -215,19 +312,31 @@ public interface SimEventList<E extends SimEvent>
    */
   void runSingleStep ();
   
-  /** Gets the factory for {@link SimEvent}s created by this {@link SimEventList}.
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // LISTENERS
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /** Adds a listener to this event list.
    * 
-   * @return The event factory; may be {@code null}.
+   * @param l The listener to be added, ignored if <code>null</code>.
    * 
    */
-  SimEventFactory<? extends E> getSimEventFactory ();
+  void addListener (SimEventListResetListener l);
   
-  /** Sets the factory for {@link SimEvent}s created by this {@link SimEventList}.
+  /** Removes a listener from this event list.
    * 
-   * @param eventFactory The event factory; may be {@code null} to stop using it.
+   * @param l The listener to be removed, ignored if <code>null</code> or not present.
    * 
    */
-  void setSimEventFactory (SimEventFactory<? extends E> eventFactory);
+  void removeListener (SimEventListResetListener l);
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // UTILITY METHODS FOR SCHEDULING
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   /** Schedules an event on this list, taking the schedule time from the event itself.
    * 
@@ -249,9 +358,10 @@ public interface SimEventList<E extends SimEvent>
   
   /** Schedules an event on this list, at given time (overriding the time set on the event itself).
    * 
+   * <p>
    * The time on the {@link SimEvent} argument is overwritten.
    * 
-   * @param time The schedule time for the event.
+   * @param time  The schedule time for the event.
    * @param event The event to schedule.
    * 
    * @throws IllegalArgumentException If the event is <code>null</code> or already scheduled,
@@ -271,14 +381,15 @@ public interface SimEventList<E extends SimEvent>
   
   /** Reschedules an event on this list, at given time (overriding the time set on the event itself).
    * 
+   * <p>
    * The time on the {@link SimEvent} argument is overwritten.
    * 
    * <p>
    * This method reinserts the event (after setting the new time on it) into the event list.
-   * If the event is not present in the list, this effects of this method are identical to those of
+   * If the event is not present in the list, the effects of this method are identical to those of
    * {@link #schedule(double, SimEvent)}.
    * 
-   * @param time The (new) schedule time for the event.
+   * @param time  The (new) schedule time for the event.
    * @param event The event to (re)schedule.
    * 
    * @throws IllegalArgumentException If the event is <code>null</code>,
@@ -348,6 +459,7 @@ public interface SimEventList<E extends SimEvent>
   
   /** Schedules an action at given time.
    * 
+   * <p>
    * Note that if the <code>action</code> argument is <code>null</code>,
    * a {@link SimEvent} is still created and scheduled
    * with <code>null</code> {@link SimEventAction}.
@@ -368,6 +480,7 @@ public interface SimEventList<E extends SimEvent>
   
   /** Schedules an event on this list at current time (overriding the time set on the event itself).
    * 
+   * <p>
    * The time on the {@link SimEvent} argument is overwritten.
    * 
    * <p>
@@ -395,6 +508,7 @@ public interface SimEventList<E extends SimEvent>
   
   /** Schedules an action now.
    * 
+   * <p>
    * Note that if the <code>action</code> argument is <code>null</code>,
    * a {@link SimEvent} is still created and scheduled
    * with <code>null</code> {@link SimEventAction}.
@@ -417,6 +531,7 @@ public interface SimEventList<E extends SimEvent>
 
   /** Schedules an action now.
    * 
+   * <p>
    * Note that if the <code>action</code> argument is <code>null</code>,
    * a {@link SimEvent} is still created and scheduled
    * with <code>null</code> {@link SimEventAction}.
@@ -436,33 +551,10 @@ public interface SimEventList<E extends SimEvent>
     return scheduleNow (action, null);
   }
   
-  /** Prints a representation of this event list on {@link System#out}.
-   * 
-   */
-  default void print ()
-  {
-    print (System.out);
-  }
-  
-  /** Prints a representation of this event list on given stream.
-   * 
-   * @param stream The stream to which to print; if {@code null}, {@link System#out} is used.
-   * 
-   */
-  default void print (final PrintStream stream)
-  {
-    final PrintStream ps = ((stream == null) ? System.out : stream);
-    ps.println ("SimEventList " + this + ", class=" + getClass ().getSimpleName () + ", time=" + getTime () + ":");
-    if (isEmpty ())
-      ps.println ("  EMPTY!");
-    else
-      for (final SimEvent event : this)
-      {
-        ps.println ("  t=" + event.getTime ()
-          + ", name=" + event.getName ()
-          + ", object=" + event.getObject ()
-          + ", action=" + event.getEventAction () + ".");
-      }
-  }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // END OF FILE
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 }
