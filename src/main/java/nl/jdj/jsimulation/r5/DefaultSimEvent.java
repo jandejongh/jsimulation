@@ -27,6 +27,7 @@ package nl.jdj.jsimulation.r5;
  * @param <T> The type of the user object.
  * 
  * @see SimEvent
+ * @see DefaultSimEventComparator
  * 
  */
 public class DefaultSimEvent<T> implements SimEvent<T>
