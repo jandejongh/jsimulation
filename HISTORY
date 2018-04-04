@@ -1,0 +1,18 @@
+jsimulation Release History
+
+Author/Maintainer: Jan de Jongh, TNO
+
+Release 5
+---------
+
+r5.0.0
+	- First public release on github/jandejongh under Apache 2.0 License.
+
+r5.1.0
+	- Added setting default reset time from constructors (reason to increase middle release number).
+	- Major review/revision of javadoc.
+	- Major revision of code structure/layout.
+	- Added 'license header' to all (Java) files.
+	- Started documenting 'last javadoc review'.
+	- Started maintenance of 'Issues' on github/jandejongh/jsimulation.
+	- First version on Maven Central.
