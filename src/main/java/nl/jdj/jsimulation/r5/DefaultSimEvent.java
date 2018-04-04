@@ -1,3 +1,19 @@
+/*
+ * Copyright 2010-2018 Jan de Jongh, TNO.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package nl.jdj.jsimulation.r5;
 
 /** An implementation of a {@link SimEvent}.
@@ -5,12 +21,96 @@ package nl.jdj.jsimulation.r5;
  * <p>
  * A {@link DefaultSimEvent} is not thread-safe.
  * 
+ * <p>
+ * <b>Last javadoc Review:</b> Jan de Jongh, TNO, 20180404, r5.1.0.
+ * 
  * @param <T> The type of the user object.
+ * 
+ * @see SimEvent
  * 
  */
 public class DefaultSimEvent<T> implements SimEvent<T>
 {
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // CONSTRUCTORS / CLONING / FACTORIES
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  /** Creates a new {@link DefaultSimEvent} with given parameters.
+   * 
+   * @param name        The name of the event.
+   * @param time        The time at which the event is to be scheduled on a {@link SimEventList}.
+   * @param object      The associated user object (may be <code>null</code>).
+   * @param eventAction The associated event action (may be <code>null</code>).
+   * 
+   */
+  public DefaultSimEvent
+    (final String name,
+    final double time,
+    final T object,
+    final SimEventAction eventAction)
+  {
+    this.name = name;
+    this.time = time;
+    this.simEventListDeconflictValue = Long.MIN_VALUE;
+    this.object = object;
+    this.eventAction = eventAction;
+  }
+
+  /** Creates a new {@link DefaultSimEvent} with given parameters and name \"No Name\" (main constructor).
+   * 
+   * @param time        The time at which the event is to be scheduled on a {@link SimEventList}.
+   * @param object      The associated user object (may be <code>null</code>).
+   * @param eventAction The associated event action (may be <code>null</code>).
+   * 
+   */
+  public DefaultSimEvent
+    (final double time,
+    final T object,
+    final SimEventAction eventAction)
+  {
+    this ("No Name", time, object, eventAction);
+  }
+
+  /** Creates a new {@link DefaultSimEvent} named \"No Name\", given time and action and <code>null</code> object.
+   * 
+   * @param time        The time at which the event is to be scheduled on a {@link SimEventList}.
+   * @param eventAction The associated event action (may be <code>null</code>).
+   * 
+   */
+  public DefaultSimEvent
+    (final double time,
+    final SimEventAction eventAction)
+  {
+    this ("No Name", time, null, eventAction);
+  }
+
+  /** Creates a new {@link DefaultSimEvent} named \"No Name\", given time and <code>null</code> object and action.
+   * 
+   * @param time The time at which the event is to be scheduled on a {@link SimEventList}.
+   * 
+   */
+  public DefaultSimEvent (final double time)
+  {
+    this ("No Name", time, null, null);
+  }
+
+  /** Creates a new {@link DefaultSimEvent} named \"No Name\", time at negative infinity and <code>null</code> object and action.
+   * 
+   */
+  public DefaultSimEvent ()
+  {
+    this (Double.NEGATIVE_INFINITY, null, null);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // NAME / toString
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   private String name;
 
   @Override
@@ -41,6 +141,12 @@ public class DefaultSimEvent<T> implements SimEvent<T>
       return super.toString ();
   }
   
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // TIME
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   private double time;
 
   @Override
@@ -55,6 +161,12 @@ public class DefaultSimEvent<T> implements SimEvent<T>
     this.time = time;
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // EVENT-LIST DECONFLICT VALUE [XXX DO WE REALLY NEED THIS IN THE INTERFACE?]
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   /** The value used for solving event-list collisions.
    * 
    * The event with the smallest de-conflict property value is scheduled first.
@@ -77,6 +189,12 @@ public class DefaultSimEvent<T> implements SimEvent<T>
     this.simEventListDeconflictValue = simEventListDeconflictValue;
   }
   
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // [USER] OBJECT
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   private T object;
 
   @Override
@@ -91,6 +209,12 @@ public class DefaultSimEvent<T> implements SimEvent<T>
     this.object = object;
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // EVENT ACTION
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   private SimEventAction eventAction;
 
   @Override
@@ -105,71 +229,10 @@ public class DefaultSimEvent<T> implements SimEvent<T>
     this.eventAction = eventAction;
   }
 
-  /** Creates a new {@link DefaultSimEvent} with given parameters.
-   * 
-   * @param name The name of the event.
-   * @param time The time at which the event is to be scheduled on a {@link SimEventList}.
-   * @param object The associated user object (may be <code>null</code>).
-   * @param eventAction The associated event action (may be <code>null</code>).
-   * 
-   */
-  public DefaultSimEvent
-    (final String name,
-    final double time,
-    final T object,
-    final SimEventAction eventAction)
-  {
-    this.name = name;
-    this.time = time;
-    this.simEventListDeconflictValue = Long.MIN_VALUE;
-    this.object = object;
-    this.eventAction = eventAction;
-  }
-
-  /** Creates a new {@link DefaultSimEvent} with given parameters and name \"No Name\".
-   * 
-   * @param time The time at which the event is to be scheduled on a {@link SimEventList}.
-   * @param object The associated user object (may be <code>null</code>).
-   * @param eventAction The associated event action (may be <code>null</code>).
-   * 
-   */
-  public DefaultSimEvent
-    (final double time,
-    final T object,
-    final SimEventAction eventAction)
-  {
-    this ("No Name", time, object, eventAction);
-  }
-
-  /** Creates a new {@link DefaultSimEvent} named \"No Name\", given time and action and <code>null</code> object.
-   * 
-   * @param time The time at which the event is to be scheduled on a {@link SimEventList}.
-   * @param eventAction The associated event action (may be <code>null</code>).
-   * 
-   */
-  public DefaultSimEvent
-    (final double time,
-    final SimEventAction eventAction)
-  {
-    this ("No Name", time, null, eventAction);
-  }
-
-  /** Creates a new {@link DefaultSimEvent} named \"No Name\", given time and <code>null</code> object and action.
-   * 
-   * @param time The time at which the event is to be scheduled on a {@link SimEventList}.
-   * 
-   */
-  public DefaultSimEvent (final double time)
-  {
-    this ("No Name", time, null, null);
-  }
-
-  /** Creates a new {@link DefaultSimEvent} named \"No Name\", time at negative infinity and <code>null</code> object and action.
-   * 
-   */
-  public DefaultSimEvent ()
-  {
-    this (Double.NEGATIVE_INFINITY, null, null);
-  }
-
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // END OF FILE
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
 }
