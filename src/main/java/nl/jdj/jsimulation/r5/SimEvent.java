@@ -1,17 +1,41 @@
+/*
+ * Copyright 2010-2018 Jan de Jongh, TNO.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package nl.jdj.jsimulation.r5;
 
 /** A (timed) event to be used in a {@link SimEventList}.
  * 
  * <p>
  * A {@link SimEvent} maintains its own scheduled time on a {@link SimEventList},
- * has a name an an associated {@link SimEventAction}, and an optional user object.
- * The name and the user object are not changed by the <code>jsimulation</code> packages, and may be <code>null</code>.
+ * has a name an an associated {@link SimEventAction}, and an optional user object
+ * (for general-purpose use).
+ * The name and the user object are not changed by the <code>jsimulation</code> packages,
+ * and may be <code>null</code>.
  * 
  * <p>
- * If two {@link SimEvent}s are scheduled on a {@link SimEventList} with identical times, their order of execution is
- * determined by the {@link SimEventList} implementation.
+ * If two {@link SimEvent}s are scheduled on a {@link SimEventList} with identical times,
+ * their order of execution is determined by the {@link SimEventList} implementation.
  * In particular, implementations should not assume insertion order of execution for events with identical times
  * <i>without</i> checking this feature for the particular event list.
+ * The interface, however, mandates that the relative order of execution of simultaneous events
+ * is determined at <i>insertion</i> time,
+ * and not changed thereafter (unless one of the events is rescheduled).
+ * 
+ * <p>
+ * <b>Last javadoc Review:</b> Jan de Jongh, TNO, 20180404, r5.1.0.
  * 
  * @param <T> The type of the user object.
  * 
@@ -19,6 +43,40 @@ package nl.jdj.jsimulation.r5;
 public interface SimEvent<T>
 {
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // NAME / toString
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  /** Gets the name of this {@link SimEvent}.
+   *
+   * <p>
+   * The name may be <code>null</code>.
+   * It is not used by the <code>jsimulation</code> package, except for logging purposes.
+   *
+   * @return The name of the event (may be <code>null</code>).
+   *
+   */
+  String getName ();
+
+  /** Sets the name of this {@link SimEvent}.
+   *
+   * <p>
+   * The name may be <code>null</code>.
+   * It is not used by the <code>jsimulation</code> package, except for logging purposes.
+   *
+   * @param name The new name of the event (may be <code>null</code>).
+   *
+   */
+  void setName (String name);
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // TIME
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   /** Returns the time at which this {@link SimEvent} is (to be) scheduled on a {@link SimEventList}.
    *
    * <p>
@@ -38,6 +96,12 @@ public interface SimEvent<T>
    * 
    */
   void setTime (double time);
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // DECONFLICT
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   /** Returns the value used for "de-conflicting" simultaneous events on a {@link SimEventList}.
    * 
@@ -61,6 +125,12 @@ public interface SimEvent<T>
    */
   void setSimEventListDeconflictValue (long simEventListDeconflictValue);
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // ACTION
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   /** Returns the {@link SimEventAction} associated with this event.
    *
    * <p>
@@ -85,6 +155,12 @@ public interface SimEvent<T>
    */
   void setEventAction (SimEventAction eventAction);
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // [USER] OBJECT
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   /** Returns the user object associated with this event.
    *
    * <p>
@@ -113,26 +189,10 @@ public interface SimEvent<T>
    */
   void setObject (T object);
 
-  /** Gets the name of this {@link SimEvent}.
-   *
-   * <p>
-   * The name may be <code>null</code>.
-   * It is not used by the <code>jsimulation</code> package, except for logging purposes.
-   *
-   * @return The name of the event (may be <code>null</code>).
-   *
-   */
-  String getName ();
-
-  /** Sets the name of this {@link SimEvent}.
-   *
-   * <p>
-   * The name may be <code>null</code>.
-   * It is not used by the <code>jsimulation</code> package, except for logging purposes.
-   *
-   * @param name The new name of the event (may be <code>null</code>).
-   *
-   */
-  void setName (String name);
-
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // END OF FILE
+  //
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
 }
