@@ -15,4 +15,6 @@ r5.1.0
 	- Added 'license header' to all (Java) files.
 	- Started documenting 'last javadoc review'.
 	- Started maintenance of 'Issues' on github/jandejongh/jsimulation.
-	- First version on Maven Central.
+
+r5.2.0
+	- First release on Maven Central / OSSRH.
