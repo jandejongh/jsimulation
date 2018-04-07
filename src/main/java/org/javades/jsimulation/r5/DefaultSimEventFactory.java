@@ -14,38 +14,38 @@
  * limitations under the License.
  * 
  */
-package nl.jdj.jsimulation.r5;
+package org.javades.jsimulation.r5;
 
-/** An action provider for {@link SimEvent}s.
- * 
- * In the interface main method, {@link #action}, a {@link SimEvent} is passed.
- * As a result, a single {@link SimEventAction} interface can be used for multiple {@link SimEvent}s.
+/** A default {@link SimEventFactory} for {@link SimEvent}s
+ *
+ * <p>
+ * The factory generates {@link DefaultSimEvent}s.
  * 
  * <p>
  * <b>Last javadoc Review:</b> Jan de Jongh, TNO, 20180404, r5.1.0.
  * 
- * @param <T> The type of the user object of the {@link SimEvent}.
- * 
  */
-@FunctionalInterface
-public interface SimEventAction<T>
+public class DefaultSimEventFactory
+implements SimEventFactory<SimEvent>
 {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
-  // ACTION
+  // SimEventFactory
   //
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  /** Invokes the action for supplied {@link SimEvent}.
-   *
-   * @param event The event.
-   *
-   * @throws IllegalArgumentException If <code>event</code> is <code>null</code>.
+    
+  /** Returns a new {@link DefaultSimEvent}.
+   * 
+   * @return A new {@link DefaultSimEvent}.
    * 
    */
-  public void action (SimEvent<T> event);
-
+  @Override
+  public SimEvent newInstance (final String name, final double time, final SimEventAction eventAction)
+  {
+    return new DefaultSimEvent (name, time, null, eventAction);
+  }
+  
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
   // END OF FILE

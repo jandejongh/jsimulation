@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package nl.jdj.jsimulation.r5;
+package org.javades.jsimulation.r5;
 
 /** A default implementation of {@link SimEventList}.
  * 

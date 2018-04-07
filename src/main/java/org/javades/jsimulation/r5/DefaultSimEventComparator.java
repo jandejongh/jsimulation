@@ -14,38 +14,46 @@
  * limitations under the License.
  * 
  */
-package nl.jdj.jsimulation.r5;
+package org.javades.jsimulation.r5;
 
-/** A default {@link SimEventFactory} for {@link SimEvent}s
- *
+import java.util.Comparator;
+
+/** A default {@link Comparator} on {@link SimEvent}s.
+ * 
  * <p>
- * The factory generates {@link DefaultSimEvent}s.
+ * This comparator extends the partial ordering of {@link SimEvent}s using their time property
+ * to a total ordering using, in case of a tie in the event times, the de-conflict field of the event.
  * 
  * <p>
  * <b>Last javadoc Review:</b> Jan de Jongh, TNO, 20180404, r5.1.0.
  * 
+ * @param <E> The type of {@link SimEvent}s supported.
+ * 
+ * @see SimEvent#getSimEventListDeconflictValue
+ * 
  */
-public class DefaultSimEventFactory
-implements SimEventFactory<SimEvent>
+public class DefaultSimEventComparator<E extends SimEvent> implements Comparator<E>
 {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
-  // SimEventFactory
+  // Comparator
   //
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-  /** Returns a new {@link DefaultSimEvent}.
-   * 
-   * @return A new {@link DefaultSimEvent}.
-   * 
-   */
   @Override
-  public SimEvent newInstance (final String name, final double time, final SimEventAction eventAction)
+  public int compare (final E e1, final E e2)
   {
-    return new DefaultSimEvent (name, time, null, eventAction);
+    // XXX What if e1 == null || e2 == null?
+    int c = Double.compare (e1.getTime (), e2.getTime ());
+    if (c == 0)
+      c = Long.compare (e1.getSimEventListDeconflictValue (), e2.getSimEventListDeconflictValue ());
+      // c = e1.getSimEventListDeconflictValue ().compareTo (e2.getSimEventListDeconflictValue ());
+    if ((e1 == e2 && c != 0) || (e1 != e2 && c == 0))
+      throw new RuntimeException ("Error attempting to order events.");
+    return c;
   }
-  
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
   // END OF FILE

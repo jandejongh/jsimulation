@@ -14,45 +14,37 @@
  * limitations under the License.
  * 
  */
-package nl.jdj.jsimulation.r5;
+package org.javades.jsimulation.r5;
 
-import java.util.Comparator;
-
-/** A default {@link Comparator} on {@link SimEvent}s.
+/** An action provider for {@link SimEvent}s.
  * 
- * <p>
- * This comparator extends the partial ordering of {@link SimEvent}s using their time property
- * to a total ordering using, in case of a tie in the event times, the de-conflict field of the event.
+ * In the interface main method, {@link #action}, a {@link SimEvent} is passed.
+ * As a result, a single {@link SimEventAction} interface can be used for multiple {@link SimEvent}s.
  * 
  * <p>
  * <b>Last javadoc Review:</b> Jan de Jongh, TNO, 20180404, r5.1.0.
  * 
- * @param <E> The type of {@link SimEvent}s supported.
- * 
- * @see SimEvent#getSimEventListDeconflictValue
+ * @param <T> The type of the user object of the {@link SimEvent}.
  * 
  */
-public class DefaultSimEventComparator<E extends SimEvent> implements Comparator<E>
+@FunctionalInterface
+public interface SimEventAction<T>
 {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
-  // Comparator
+  // ACTION
   //
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-  @Override
-  public int compare (final E e1, final E e2)
-  {
-    // XXX What if e1 == null || e2 == null?
-    int c = Double.compare (e1.getTime (), e2.getTime ());
-    if (c == 0)
-      c = Long.compare (e1.getSimEventListDeconflictValue (), e2.getSimEventListDeconflictValue ());
-      // c = e1.getSimEventListDeconflictValue ().compareTo (e2.getSimEventListDeconflictValue ());
-    if ((e1 == e2 && c != 0) || (e1 != e2 && c == 0))
-      throw new RuntimeException ("Error attempting to order events.");
-    return c;
-  }
+  
+  /** Invokes the action for supplied {@link SimEvent}.
+   *
+   * @param event The event.
+   *
+   * @throws IllegalArgumentException If <code>event</code> is <code>null</code>.
+   * 
+   */
+  public void action (SimEvent<T> event);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //

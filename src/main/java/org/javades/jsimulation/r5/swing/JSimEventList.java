@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-package nl.jdj.jsimulation.r5.swing;
+package org.javades.jsimulation.r5.swing;
 
 import java.awt.Dimension;
 import java.util.Iterator;
@@ -24,9 +24,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
-import nl.jdj.jsimulation.r5.SimEvent;
-import nl.jdj.jsimulation.r5.SimEventList;
-import nl.jdj.jsimulation.r5.SimEventListListener;
+import org.javades.jsimulation.r5.SimEvent;
+import org.javades.jsimulation.r5.SimEventList;
+import org.javades.jsimulation.r5.SimEventListListener;
 
 /** A Swing <code>JComponent</code> showing the contents of a {@link SimEventList}.
  *

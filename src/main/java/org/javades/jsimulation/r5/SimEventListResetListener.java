@@ -14,36 +14,35 @@
  * limitations under the License.
  * 
  */
-package nl.jdj.jsimulation.r5;
+package org.javades.jsimulation.r5;
 
-/** A factory for {@link SimEvent}s.
- *
+/** An object capable of listening to a reset of a {@link SimEventList}.
+ * 
+ * <p>
+ * This interface is meant for objects that want to capture the reset events of an event list, but do not care about any other
+ * events like updates.
+ * 
  * <p>
  * <b>Last javadoc Review:</b> Jan de Jongh, TNO, 20180404, r5.1.0.
  * 
- * @param <E> The (base) type of {@link SimEvent}s generated.
- * 
+ * @see SimEventListListener
+ *
  */
-@FunctionalInterface
-public interface SimEventFactory<E extends SimEvent>
+public interface SimEventListResetListener
 {
-  
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
-  // NEW INSTANCE
+  // NOTIFY RESET
   //
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  /** Creates a new {@link SimEvent} instance.
+  /** Notification of the event list being reset.
    * 
-   * @param name        The name of the event.
-   * @param time        The time at which the event is to be scheduled on a {@link SimEventList}.
-   * @param eventAction The associated event action (may be <code>null</code>).
-   *
-   * @return The new {@link SimEvent} instance.
+   * @param eventList The event list.
    * 
    */
-  E newInstance (String name, double time, SimEventAction eventAction);
+  public void notifyEventListReset (SimEventList eventList);
   
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //

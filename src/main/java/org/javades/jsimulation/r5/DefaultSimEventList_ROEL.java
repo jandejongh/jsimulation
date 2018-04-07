@@ -14,14 +14,16 @@
  * limitations under the License.
  * 
  */
-package nl.jdj.jsimulation.r5;
+package org.javades.jsimulation.r5;
 
+import java.util.Random;
 import java.util.Set;
 
-/** The IOEL (Insertion-Order Event List) variant of {@link AbstractSimEventList}.
+/** The ROEL (Random-Order Event List) variant of {@link AbstractSimEventList}.
  * 
  * <p>
- * In IOEL, events that have the same time, are processed in insertion order!
+ * In ROEL, events that have the same time, are processed in random order!
+ * This event list does not maintain insertion order!
  * 
  * <p>
  * The implementation is not thread-safe.
@@ -33,7 +35,7 @@ import java.util.Set;
  * @param <E> The type of {@link SimEvent}s supported.
  * 
  */
-public final class DefaultSimEventList_IOEL<E extends SimEvent>
+public class DefaultSimEventList_ROEL<E extends SimEvent>
 extends AbstractSimEventList<E>
 {
 
@@ -43,7 +45,7 @@ extends AbstractSimEventList<E>
   //
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  private static final long serialVersionUID = 7744885373343754672L;
+  private static final long serialVersionUID = 1135083343524220732L;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
@@ -51,29 +53,28 @@ extends AbstractSimEventList<E>
   //
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  /** Creates a new {@link DefaultSimEventList_IOEL} (main constructor).
+  /** Creates a new {@link DefaultSimEventList_ROEL} (main constructor).
    * 
    * @param defaultResetTime The default reset time.
    * @param eventClass       The base class {@link SimEvent}s supported.
    * 
    */
-  public DefaultSimEventList_IOEL (final double defaultResetTime, final Class<E> eventClass)
+  public DefaultSimEventList_ROEL (final double defaultResetTime, final Class<E> eventClass)
   {
     super (new DefaultSimEventComparator (), defaultResetTime, eventClass);
-    this.deconflict_IOEL = Long.MIN_VALUE;
   }
-  
-  /** Creates a new {@link DefaultSimEventList_IOEL} for {@link DefaultSimEvent}s.
+
+  /** Creates a new {@link DefaultSimEventList_ROEL} for {@link DefaultSimEvent}s.
    * 
    * @param defaultResetTime The default reset time.
    * 
    */
-  public DefaultSimEventList_IOEL (final double defaultResetTime)
+  public DefaultSimEventList_ROEL (final double defaultResetTime)
   {
     this (defaultResetTime, (Class<E>) DefaultSimEvent.class);
   }
   
-  /** Creates a new {@link DefaultSimEventList_IOEL}.
+  /** Creates a new {@link DefaultSimEventList_ROEL}.
    * 
    * @param eventClass The base class {@link SimEvent}s supported.
    * 
@@ -81,18 +82,18 @@ extends AbstractSimEventList<E>
    * The default reset time is set to {@link Double#NEGATIVE_INFINITY}.
    * 
    */
-  public DefaultSimEventList_IOEL (final Class<E> eventClass)
+  public DefaultSimEventList_ROEL (final Class<E> eventClass)
   {
     this (Double.NEGATIVE_INFINITY, eventClass);
   }
 
-  /** Creates a new {@link DefaultSimEventList_IOEL} for {@link DefaultSimEvent}s.
+  /** Creates a new {@link DefaultSimEventList_ROEL} for {@link DefaultSimEvent}s.
    * 
    * <p>
    * The default reset time is set to {@link Double#NEGATIVE_INFINITY}.
    * 
    */
-  public DefaultSimEventList_IOEL ()
+  public DefaultSimEventList_ROEL ()
   {
     this (Double.NEGATIVE_INFINITY, (Class<E>) DefaultSimEvent.class);
   }
@@ -103,7 +104,26 @@ extends AbstractSimEventList<E>
   //
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-  private long deconflict_IOEL = Long.MIN_VALUE;
+  private final Random rngDeconflict_ROEL = new Random ();
+
+  /** Sets the seed for the pseudo-random sequence for de-conflicting event-list collisions.
+   * 
+   * <p>
+   * An event-list collision occurs when two {@link SimEvent}s
+   * are scheduled at the same time in a {@link SimEventList}.
+   * 
+   * <p>
+   * This implementation uses an internal {@link Random} object to set the
+   * so-called <i>deconflict</i> value on a {@link SimEvent} when it is added
+   * to the event list (default ROEL).
+   * 
+   * @param seed The new seed.
+   * 
+   */
+  public final void setDeconflicterSeed_ROEL (final long seed)
+  {
+    this.rngDeconflict_ROEL.setSeed (seed);
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
@@ -114,13 +134,9 @@ extends AbstractSimEventList<E>
   /** Overridden in order to set the <i>deconflict</i> value on the event added.
    * 
    * <p>
-   * This implementation uses an internal increasing counter to set the
+   * This implementation uses an internal {@link Random} object to set the
    * so-called <i>deconflict</i> value on a {@link SimEvent} when it is added
-   * to the event list (IOEL).
-   * Hence, as long as the (long) counter does not roll over,
-   * simultaneous events are processed in insertion-order.
-   * Note that the counter is reset in this method
-   * when the list is empty upon entry.
+   * to the event list (default ROEL).
    * 
    * @param e See {@link Set#add}.
    * 
@@ -130,16 +146,13 @@ extends AbstractSimEventList<E>
    * 
    */
   @Override
-  public boolean add (final E e)
+  public final boolean add (final E e)
   {
     if (e == null)
       throw new NullPointerException ("Attempt to add null event to event list!");
     if (! contains (e))
     {
-      if (super.isEmpty ())
-        this.deconflict_IOEL = Long.MIN_VALUE;
-      this.deconflict_IOEL++;
-      e.setSimEventListDeconflictValue (this.deconflict_IOEL);
+      e.setSimEventListDeconflictValue (this.rngDeconflict_ROEL.nextLong ());
       return super.add (e);
     }
     return false;

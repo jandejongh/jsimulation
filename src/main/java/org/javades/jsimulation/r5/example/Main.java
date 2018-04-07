@@ -14,14 +14,14 @@
  * limitations under the License.
  * 
  */
-package nl.jdj.jsimulation.r5.example;
+package org.javades.jsimulation.r5.example;
 
-import nl.jdj.jsimulation.r5.AbstractSimTimer;
-import nl.jdj.jsimulation.r5.DefaultSimEvent;
-import nl.jdj.jsimulation.r5.DefaultSimEventList;
-import nl.jdj.jsimulation.r5.SimEvent;
-import nl.jdj.jsimulation.r5.SimEventAction;
-import nl.jdj.jsimulation.r5.SimEventList;
+import org.javades.jsimulation.r5.AbstractSimTimer;
+import org.javades.jsimulation.r5.DefaultSimEvent;
+import org.javades.jsimulation.r5.DefaultSimEventList;
+import org.javades.jsimulation.r5.SimEvent;
+import org.javades.jsimulation.r5.SimEventAction;
+import org.javades.jsimulation.r5.SimEventList;
 
 /** Example code for {@code jsimulation}.
  * 

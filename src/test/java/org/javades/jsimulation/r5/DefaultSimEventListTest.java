@@ -14,8 +14,13 @@
  * limitations under the License.
  * 
  */
-package nl.jdj.jsimulation.r5;
+package org.javades.jsimulation.r5;
 
+import org.javades.jsimulation.r5.SimEventAction;
+import org.javades.jsimulation.r5.DefaultSimEvent;
+import org.javades.jsimulation.r5.DefaultSimEventList;
+import org.javades.jsimulation.r5.SimEvent;
+import org.javades.jsimulation.r5.SimEventList;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
