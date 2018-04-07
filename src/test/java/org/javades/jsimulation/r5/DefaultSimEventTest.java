@@ -16,9 +16,6 @@
  */
 package org.javades.jsimulation.r5;
 
-import org.javades.jsimulation.r5.SimEventAction;
-import org.javades.jsimulation.r5.DefaultSimEvent;
-import org.javades.jsimulation.r5.SimEvent;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
