@@ -371,6 +371,22 @@ public interface SimEventList<E extends SimEvent>
       throw new IllegalArgumentException ();
     add (event);
   }
+
+  /** Cancels (removes) a scheduled event, if present.
+   * 
+   * <p>
+   * If the event is {@code null} or not present,
+   * this method does nothing.
+   * 
+   * @param event The event, a {@code null} value is silently ignored.
+   * 
+   * @return Whether or not the event was present a priori.
+   * 
+   */  
+  default boolean cancel (final E event)
+  {
+    return remove (event);
+  }
   
   /** Schedules an event on this list, at given time (overriding the time set on the event itself).
    * 
