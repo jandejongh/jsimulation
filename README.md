@@ -11,7 +11,8 @@ None.
 
 ### Documentation
 
-Both jsimulation and jqueues have extensive javadoc comments; a 'Guided Tour' is on its way.
+Both jsimulation and jqueues have extensive javadoc comments; a 'Guided Tour' is on its way;
+see https://github.com/jandejongh/jqueues-guided-tour.
 
 ### License
 
